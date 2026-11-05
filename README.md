@@ -1,8 +1,8 @@
-# Netmera Automation
+# Daily Report Automation
 
-### Panelden rapora, tek bir çalışma akışı.
+### Günlük raporları tek akışta hazırlayın ve aktarın.
 
-Netmera ve Google Analytics 4 raporlarını tanımlayın; sonuçları Excel veya Google Sheets'e aktarın. Tekrarlanan sorgular, segment hesaplamaları, hücre eşlemeleri ve kaynaklar arası hesaplamalar için Windows üzerinde çalışan yerel bir araç.
+**Daily Report Automation**, günlük analitik raporlarını hazırlama ve tablolara aktarma işini otomatikleştiren bir Windows uygulamasıdır. Netmera ve Google Analytics 4 verilerini tanımlı gün ve saatlerde çekin; Excel veya Google Sheets hücrelerine eşleyin, farklı kaynaklardan gelen sayılarla hesaplama yapın ve aynı rapor akışını tekrar kullanın.
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D4)
@@ -38,8 +38,8 @@ Netmera ve Google Analytics 4 raporlarını tanımlayın; sonuçları Excel veya
 Geliştirme için Python 3.12 ve Google Chrome veya Microsoft Edge kullanılır. PowerShell:
 
 ```powershell
-git clone https://github.com/AydanGelenYolcu/netmera-automation.git
-cd netmera-automation
+git clone https://github.com/AydanGelenYolcu/daily-report-automation.git
+cd daily-report-automation
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\NetmeraOtomasyonu.cmd
