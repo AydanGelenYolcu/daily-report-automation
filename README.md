@@ -1,5 +1,7 @@
 # Daily Report Automation
 
+**Language / Dil:** Türkçe | [English](README.en.md)
+
 ### Netmera, GA4 ve tablo verilerini tek günlük raporda birleştirin.
 
 **Daily Report Automation**, Netmera ve Google Analytics 4 (GA4) sonuçlarını mevcut yerel Excel dosyaları ve Google Sheets tablolarıyla bir araya getiren taşınabilir bir Windows raporlama uygulamasıdır. Günlük veriyi tarih sütununda veya başlık satırında doğru günle eşleştirin; farklı kaynaklardaki hücreleri formüllerle birleştirin; sonucu seçtiğiniz Excel dosyasına ya da Google Sheet'e yazın.
