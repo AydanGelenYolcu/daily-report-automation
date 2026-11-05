@@ -103,6 +103,22 @@ flowchart LR
 | `ui/src/`, `tools/build_ui.py` | Arayüz kaynakları ve birleşik HTML üretimi |
 | `tests/` | Sentetik veri ve sahte panellerle doğrulama |
 
+## Teknolojiler, diller ve API'ler
+
+GitHub kaynak dosyalarına göre dilleri otomatik olarak **Python, HTML ve Batchfile** gösterir. Arayüzde HTML içine gömülü CSS ve JavaScript de kullanılır.
+
+| Alan | Teknoloji / API | Kullanım |
+|---|---|---|
+| Uygulama | Python 3.12 | Rapor işleri, zamanlama, formül ve veri aktarım akışı |
+| Arayüz | HTML, CSS, JavaScript | Yerel web arayüzü; `127.0.0.1` üzerinde çalışır |
+| Netmera | Playwright + bilgisayardaki Chrome/Edge | Netmera panelini tarayıcı üzerinden kullanıp rapor sonuçlarını okur; Netmera REST API'si kullandığı iddia edilmez |
+| Google Analytics 4 | Google Analytics Data API v1beta | GA4 rapor verilerini salt okunur sorgular |
+| GA4 mülkleri | Google Analytics Admin API v1beta | Erişilebilen hesap ve mülk özetlerini listeler |
+| Google Sheets | Google Sheets API v4 | Kaynak hücrelerini okur ve eşlenen rapor hücrelerine yazar |
+| Google bağlantısı | OAuth 2.0 masaüstü akışı | Kullanıcı hesabı üzerinden Analytics ve Sheets erişimi sağlar; oturum Windows DPAPI ile yerelde korunur |
+| Yerel tablolar | `openpyxl`, `.xlsx` | Excel hücrelerini kaynak olarak okur ve seçilen çalışma kitabına çıktı yazar |
+| Taşınabilir başlatıcı | Windows Batchfile (`.cmd`) | Gömülü Python içeren ZIP paketinden uygulamayı başlatır |
+
 ## Kararlılık ve veri güvenliği
 
 - Kalabalık iş listeleri sayfalanır; arama tüm işlerde çalışır.
