@@ -1,8 +1,10 @@
 # Daily Report Automation
 
-### Günlük raporları tek akışta hazırlayın ve aktarın.
+### Netmera, GA4 ve tablo verilerini tek günlük raporda birleştirin.
 
-**Daily Report Automation**, günlük analitik raporlarını hazırlama ve tablolara aktarma işini otomatikleştiren bir Windows uygulamasıdır. Netmera ve Google Analytics 4 verilerini tanımlı gün ve saatlerde çekin; Excel veya Google Sheets hücrelerine eşleyin, farklı kaynaklardan gelen sayılarla hesaplama yapın ve aynı rapor akışını tekrar kullanın.
+**Daily Report Automation**, Netmera ve Google Analytics 4 (GA4) sonuçlarını mevcut yerel Excel dosyaları ve Google Sheets tablolarıyla bir araya getiren taşınabilir bir Windows raporlama uygulamasıdır. Günlük veriyi tarih sütununda veya başlık satırında doğru günle eşleştirin; farklı kaynaklardaki hücreleri formüllerle birleştirin; sonucu seçtiğiniz Excel dosyasına ya da Google Sheet'e yazın.
+
+**Bir rapor akışında:** Netmera/GA4 verisini alın → ilgili tarihi satır veya başlıkta bulun → Excel ya da Google Sheets'ten ek değerleri okuyun → toplama, çıkarma, çarpma, bölme veya ortalama hesabı yapın → sonucu yerel Excel'e veya Google Sheets'e aktarın. Tarih aralığını gün gün çalıştırabilir, akışı belirli gün ve saatlerde zamanlayabilirsiniz.
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D4)
@@ -20,11 +22,23 @@
 | **Netmera raporları** | Event Insight, People, Tag ve Segment toplamlarını okuma |
 | **Segment hesaplama** | Mevcut kuralları kullanma, bağlı tarih kutularını uygun sırada değiştirme, hesaplamayı bekleme |
 | **GA4 raporları** | Metrik, kırılım, filtre ve tarih tanımıyla rapor işleri oluşturma |
-| **Excel / Sheets eşleme** | Sabit hücre, tarih satırı, tarih başlığı veya günlük kayma ile hedef bulma |
-| **Hesaplamalar** | İş sonuçları ve farklı Excel/Sheets hücreleriyle `(A + B) / 2` gibi ifadeler |
+| **Birden fazla veri kaynağı** | Rapor sonuçlarını mevcut `.xlsx` dosyası veya Google Sheets hücrelerinden okunan değerlerle birleştirme |
+| **Tarih ve satır eşleştirme** | Tarih sütununda doğru satırı veya yatay başlıklarda doğru günü bulup hedef hücreyi belirleme |
+| **Hesaplamalar** | Netmera/GA4 sonuçları ile Excel/Sheets hücrelerini `A + B`, `A - B`, `A * B`, `A / B` veya `(A + B) / 2` şeklinde hesaplama |
+| **Excel / Sheets çıktısı** | Sonuçları mevcut yerel Excel dosyasına veya Google Sheets'e sabit hücre, tarih eşlemesi ya da günlük kayma ile yazma |
 | **Gün gün çalışma** | Tarih aralığındaki günleri ayrı çekme ve kendi hücrelerine yazma |
 | **Zamanlama** | Windows Görev Zamanlayıcı üzerinden seçilen gün/saatlerde çalıştırma |
 | **Proje aktarımı** | İşleri, formülleri, tablo bağlantılarını, hücre ve GA4 mülk eşlemelerini JSON ile taşıma |
+
+### Yerel Excel ve Google Sheets ile günlük eşleme
+
+Mevcut `.xlsx` dosyasını veya Google Sheets sayfasını **kaynak** olarak seçip bir hücreyi sabit adresinden okuyabilir ya da çalışılan tarihin bulunduğu satır/sütunu otomatik aratabilirsiniz. Örneğin A sütununda tarih, C sütununda değer varsa uygulama hedef günü A sütununda bulur ve aynı satırdaki C değerini hesaplamada kullanır. Tarihler yatay başlıklardaysa başlık satırında günü bulup ilgili sütundaki değeri okur.
+
+**Örnek:** Günlük segment sonucu `25`, aynı tarihin Excel satırındaki C hücresi `5` ise `A + B` sonucu `30` olur. `A` ile `B` ikiye bölünürse sonuç `15` olur. Hesaplama sonucunu projenin seçili çıktı hedefi olan yerel Excel dosyasına veya Google Sheets'e tarih eşlemesiyle yazabilirsiniz. Yerel Excel için dosyayı seçin; Google Sheets için uygulamada Google bağlantısını kurun. Ayrıntılar [Google bağlantısı](GOOGLE_SHEETS.md) rehberinde.
+
+### Portable Windows paketi
+
+Depo, uygulamayı ve sabitlenmiş bağımlılıkları gömülü Python ile tek bir taşınabilir Windows ZIP paketine toplar. Hedef bilgisayarda Python kurmak gerekmez: ZIP'i açıp `NetmeraOtomasyonu.cmd` dosyasını çalıştırın. Netmera paneli otomasyonu için bilgisayarda Chrome veya Edge kurulu olmalıdır. Paket oluşturma komutu [geliştirme bölümünde](#geliştirme-ve-doğrulama) yer alır.
 
 ## Uygulama içinde
 
