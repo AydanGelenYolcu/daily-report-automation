@@ -1,0 +1,21 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Sentetik giriş</title></head><body>
+<!-- Yalnız SENTETİK hesap. Netmera'nın 2026-10-16 boş giriş formunun alanları/rolleri. -->
+<div>Sign in to your account</div>
+<form>
+  <input id="username" type="text" autocomplete="username" placeholder="Email Address">
+  <input id="password" type="password" autocomplete="current-password" placeholder="Password">
+  <label><input type="checkbox" id="rememberMe">Keep me logged in</label>
+  <button type="button">Forgot Password?</button><button type="submit">Login</button>
+</form><div id="result"></div>
+<script>
+document.querySelector('form').onsubmit=async e=>{
+  e.preventDefault();
+  const r=await fetch('/synthetic-login',{method:'POST',body:JSON.stringify({
+    username:document.querySelector('#username').value,password:document.querySelector('#password').value,
+    keep:document.querySelector('#rememberMe').checked})});
+  const data=await r.json();
+  if(data.otp){document.querySelector('form').innerHTML='<div>Verification code</div><input autocomplete="one-time-code">';return;}
+  if(data.ok) location.href='/';
+  else document.querySelector('#result').innerHTML='<div role="alert">Invalid credentials (synthetic)</div>';
+};
+</script></body></html>

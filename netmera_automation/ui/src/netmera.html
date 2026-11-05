@@ -1,0 +1,2066 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="token" content="__TOKEN__">
+<title>Netmera Otomasyonu</title>
+<style>
+:root{
+  --bg:#f3f5fa; --panel:#ffffff; --ink:#202f45; --muted:#5d6e85; --line:#dce3ee; --soft:#eef2f9;
+  --accent:#2457c5; --accent-ink:#ffffff; --ok:#1d7a46; --ok-bg:#e5f4ea; --warn:#9c4a00; --warn-bg:#fff3e0;
+  --err:#b42318; --err-bg:#fdecea; --demo:#7a4bd1; --demo-bg:#f1ebfd; --code:#0f1720; --code-ink:#d6e2ee;
+  --radius:10px; --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#11161d; --panel:#1a212b; --ink:#e3e9f0; --muted:#9aa7b5; --line:#2c3643; --soft:#222b36;
+    --accent:#5b8def; --ok:#5fd08f; --ok-bg:#16301f; --warn:#f2b26b; --warn-bg:#33240f; --err:#ff8a7e; --err-bg:#3a1b18;
+    --demo:#b79bff; --demo-bg:#2a2140; --code:#0b0f14; --shadow:none;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Segoe UI",system-ui,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+header{position:sticky;top:0;z-index:5;background:var(--panel);border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;padding:10px 20px;flex-wrap:wrap}
+header h1{font-size:16px;margin:0 8px 0 0;white-space:nowrap}
+header .grow{flex:1}
+main{max-width:1180px;margin:0 auto;padding:18px 20px 60px}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:4px 0 16px;overflow-x:auto}
+nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:9px 14px;cursor:pointer;color:var(--muted);white-space:nowrap}
+nav.tabs button.on{color:var(--ink);border-color:var(--accent);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 4px}
+.card h3{font-size:13px;margin:14px 0 6px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.hint{color:var(--muted);font-size:12.5px;margin:2px 0 10px}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:7px 12px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--err)}
+.btn.small{padding:4px 9px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.project-transfer-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow:auto;margin:12px 0}
+.project-transfer-item{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px}
+.project-transfer-item input{flex:none;margin-top:3px}
+.project-transfer-info{min-width:0;overflow-wrap:anywhere}
+.project-transfer-info small{display:block;color:var(--muted);margin-top:3px}
+#projectImportFile{max-width:100%;width:100%}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 18px}
+label.f{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}
+label.f small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=password],input[type=number],input[type=time],input[type=date],select,textarea{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 10px;min-width:0;width:100%}
+textarea{min-height:64px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 35%,transparent);border-color:var(--accent)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12.5px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.run{background:var(--warn-bg);color:var(--warn)}
+.pill.err{background:var(--err-bg);color:var(--err)} .pill.demo{background:var(--demo-bg);color:var(--demo)}
+.tag{font-size:11.5px;padding:1px 7px;border-radius:6px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.tag.exp{background:var(--warn-bg);color:var(--warn)}
+.banner{border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;border:1px solid}
+.banner.warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 30%,transparent);color:var(--warn)}
+.banner.demo{background:var(--demo-bg);border-color:color-mix(in srgb,var(--demo) 30%,transparent);color:var(--demo)}
+.banner ul{margin:6px 0 0;padding-left:20px}
+.guide-step{border-left:3px solid var(--accent);padding:4px 0 4px 14px;margin:14px 0}
+.guide-step h3{margin:0 0 5px;color:var(--ink);text-transform:none;letter-spacing:0;font-size:14px}
+.guide-step p{margin:4px 0 8px}
+.guide-step ol,.guide-step ul{margin:6px 0;padding-left:22px}
+.guide-step li{margin:4px 0}
+.guide-callout{border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin:10px 0 14px;background:var(--soft)}
+.guide-callout.warn{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 30%,transparent)}
+.guide-card a{color:var(--accent);overflow-wrap:anywhere}
+.guide-card details{border-top:1px solid var(--line);padding:10px 0}
+.guide-card summary{cursor:pointer;font-weight:600}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);cursor:pointer;font-weight:600}
+.linkbtn:hover{text-decoration:underline}
+.btn.disabled{opacity:.5;pointer-events:none}
+.gfound{margin-top:6px!important;padding:6px 10px;border-radius:8px;background:var(--ok-bg);color:var(--ok)!important}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
+label.btn:focus-within{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+.grow{flex:1}
+.gcard{margin-top:18px;border:1px solid var(--line);border-radius:14px;padding:4px 16px 16px;background:var(--soft)}
+.gcard .section-title{margin-top:12px}
+.gflow{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.gflow>li{display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel);transition:border-color .15s,box-shadow .15s}
+.gflow b{display:block;font-size:14px}.gflow small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.gflow small b{display:inline;font-size:inherit}
+.gact{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.gnum{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--soft);color:var(--muted);flex:none}
+.now{border-color:var(--accent)!important;box-shadow:0 0 0 1px var(--accent)}
+.now>.gnum{background:var(--accent);color:var(--accent-ink)}
+.done>.gnum{background:var(--ok);color:#fff;font-size:0}.done>.gnum:after{content:"✓";font-size:15px}
+.gflow>li.off{opacity:.62}
+.gstatus{margin-top:10px;font-size:13px;border-radius:10px;padding:10px 12px;background:var(--panel);border:1px solid var(--line)}
+.gstatus:empty{display:none}
+.gstatus.ok{background:var(--ok-bg);border-color:color-mix(in srgb,var(--ok) 30%,transparent);color:var(--ok)}
+.gstatus.err{background:var(--err-bg);border-color:color-mix(in srgb,var(--err) 30%,transparent);color:var(--err)}
+.gstatus.run{background:var(--warn-bg);border-color:color-mix(in srgb,var(--warn) 30%,transparent);color:var(--warn)}
+.gstatus p{margin:0}.gstatus p+p{margin-top:5px}
+.ghero h2{font-size:17px}
+.gprogress{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.gprogress span{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;font-size:12.5px;background:var(--panel)}
+.gprogress span i{font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--muted);font-size:11px;font-weight:700}
+.gprogress span.done i{background:var(--ok);color:#fff}
+.gneed{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:10px 0}
+.gneed>div{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.gneed ul{margin:6px 0 0;padding-left:18px}.gneed li{margin:3px 0}
+.gpart{display:flex;gap:12px;align-items:flex-start;margin-bottom:6px}
+.gpart h2{margin:2px 0 0}
+.gtag{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:15px}
+.gstep{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+.gstep h3{margin:4px 0 6px;font-size:14px;color:var(--ink);text-transform:none;letter-spacing:0}
+.gstep p{margin:4px 0 8px}.gstep ol{margin:6px 0 8px;padding-left:20px}.gstep li{margin:4px 0}
+.gstep.now{box-shadow:none;border-color:var(--line)!important}
+.gstate{font-size:12.5px;font-weight:600;color:var(--muted)}
+.gstep.done .gstate{color:var(--ok)}.gstep.now .gstate{color:var(--accent)}
+.gtable td,.gtable th{font-size:12.5px}
+.gmore{border:0!important;padding:4px 0!important}
+.gmore summary{font-weight:600;color:var(--accent)}
+.jobs{display:flex;flex-direction:column;gap:8px}
+.job{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;background:var(--panel)}
+.job.off{opacity:.6}
+.job .t{font-weight:600}
+.job .d{color:var(--muted);font-size:12.5px;overflow-wrap:anywhere}
+.job .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.switch{position:relative;width:38px;height:22px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch span{position:absolute;inset:0;background:var(--line);border-radius:22px;cursor:pointer;transition:.15s}
+.switch span:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s}
+.switch input:checked+span{background:var(--ok)}
+.switch input:checked+span:before{transform:translateX(16px)}
+.console{background:var(--code);color:var(--code-ink);border-radius:8px;padding:10px 12px;font:12.5px/1.5 Consolas,monospace;height:260px;overflow:auto;white-space:pre-wrap}
+table.res{width:100%;border-collapse:collapse;font-size:13px}
+table.res th,table.res td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.res td.n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.tw{overflow-x:auto}
+dialog{border:1px solid var(--line);border-radius:14px;padding:0;width:min(760px,96vw);background:var(--panel);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(10,15,25,.45)}
+.dlg-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.dlg-b{padding:16px 18px;max-height:70vh;overflow:auto}
+.dlg-f{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.types{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.types button{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:10px;text-align:left;cursor:pointer}
+.types button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.types b{display:block}.types small{color:var(--muted)}
+.frow{display:grid;grid-template-columns:1.3fr 1fr 1.5fr auto;gap:8px;align-items:start;margin-bottom:8px}
+.projects{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;display:flex;flex-direction:column;gap:8px}
+.pcard h3{margin:0;font-size:15px;color:var(--ink);text-transform:none;letter-spacing:0}
+.pcard .meta{color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;gap:3px}
+.pcard .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto}
+.rrow{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;background:var(--panel)}
+.rule-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.rule-heading{display:flex;align-items:center;gap:8px;font-weight:600}
+.rrow .no{display:inline-grid;place-items:center;min-width:28px;height:28px;border-radius:8px;background:var(--soft);color:var(--accent);font-size:12px}
+.rule-fields{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:12px}
+.rule-fields.two{grid-template-columns:1fr 1.25fr}
+.rule-options{border-top:1px solid var(--line);margin-top:14px;padding-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.date-range{grid-column:1/-1;background:var(--soft);border-radius:10px;padding:12px}
+.date-range .grid2{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.date-note{font-size:12px;color:var(--muted);margin:8px 0 0}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:14px 0}
+.status-item{padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+.status-item small{display:block;color:var(--muted);margin-bottom:5px}.status-item strong{display:block;font-size:14px;overflow-wrap:anywhere}
+#taskNamePreview,#relatedTasks{overflow-wrap:anywhere}
+.pgroup{border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:14px;padding:12px 12px 2px;margin-bottom:10px;background:var(--soft)}
+.rule-join{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.08em;margin:8px 0 12px}
+.rule-join:before,.rule-join:after{content:"";height:1px;background:var(--line);flex:1}
+.section-title{display:flex;align-items:center;gap:8px;margin:16px 0 10px}
+.section-title h3{margin:0;color:var(--ink);text-transform:none;font-size:14px;letter-spacing:0}
+.info-btn{display:inline-grid;place-items:center;flex:none;width:23px;height:23px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--panel);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer}
+.info-btn:hover{background:var(--soft);border-color:var(--accent)}
+button:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+#jobDlg{width:min(920px,96vw)}
+#jobDlg .dlg-h{background:var(--soft)}
+#jobDlg .dlg-h b{font-size:17px}
+#infoDlg{width:min(470px,92vw)}
+#infoBody p{margin:0 0 12px;line-height:1.65}#infoBody p:last-child{margin-bottom:0}
+.types button{transition:background .15s,border-color .15s}.types button.on{background:var(--soft)}
+.btn{transition:border-color .15s,background .15s}.btn.primary:hover{filter:brightness(1.08)}
+.preview{background:var(--soft);border-radius:8px;padding:8px 10px;font-size:13px;margin-top:12px}
+.err-text{color:var(--err);font-size:13px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;gap:6px;align-items:center;background:var(--soft);border-radius:999px;padding:4px 6px 4px 12px;font-variant-numeric:tabular-nums}
+.chip button{border:0;background:none;cursor:pointer;color:var(--muted);font-size:15px;line-height:1}
+.checks{display:flex;gap:6px 14px;flex-wrap:wrap}
+.checks label{display:inline-flex;gap:6px;align-items:center;font-weight:400}
+.toast{position:fixed;right:18px;bottom:18px;max-width:420px;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1;transform:none}
+.toast.err{background:var(--err);color:#fff}
+.hidden{display:none!important}
+code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:12.5px}
+@media (max-width:700px){
+  main{padding:14px 16px 50px} header{padding:10px 16px}
+  .job{grid-template-columns:auto 1fr}.job .acts{grid-column:1/-1;justify-content:flex-start}
+  .frow{grid-template-columns:1fr}
+  .rule-fields,.rule-fields.two,.rule-options{grid-template-columns:1fr}.date-range .grid2{grid-template-columns:1fr}
+  .rrow{padding:12px}.rule-head{align-items:flex-start}.dlg-b{padding:14px}
+  .gflow>li{grid-template-columns:32px minmax(0,1fr)}.gact{grid-column:2;justify-content:flex-start}
+  .gcard{padding:4px 12px 12px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Netmera Otomasyonu</h1>
+  <button class="btn small hidden" id="backBtn">← Projeler</button>
+  <b id="projTitle" class="hidden"></b>
+  <span id="sourcePill" class="pill hidden"></span>
+  <span class="grow"></span>
+  <span id="statusPill" class="pill">Hazır</span>
+  <button class="btn small" id="quitBtn" title="Arayüzü kapat (zamanlanmış görevler çalışmaya devam eder)">Kapat</button>
+</header>
+<main>
+  <section id="projectsView">
+    <div class="row" style="justify-content:space-between;margin-bottom:12px">
+      <div><h2 style="margin:0;font-size:18px">Projeler</h2><div class="hint">Her otomasyon bir proje: kendi Netmera uygulaması, işleri, Excel dosyası ve saatleri.</div></div>
+      <div class="row"><button class="btn" type="button" id="exportProjectsBtn">Projeleri dışa aktar</button><button class="btn" type="button" id="importProjectsBtn">Projeleri içe aktar</button><button class="btn primary" id="newProfileBtn">+ Yeni proje</button></div>
+    </div>
+    <div class="projects" id="projectCards"></div>
+  </section>
+  <div id="projectView" class="hidden">
+  <div id="demoBanner" class="banner demo hidden"><b>Demo projesi:</b> Netmera'ya bağlanmaz, sahte sayılar üretir. Arayüzü denemek içindir; Excel'de "SENTETİK" yazar.</div>
+  <div id="readyBanner" class="banner warn hidden"><b>Çalıştırmadan önce tamamlanacaklar</b><ul id="readyList"></ul></div>
+  <nav class="tabs" role="tablist">
+    <button data-tab="jobs" class="on">İşler</button>
+    <button data-tab="run">Çalıştır</button>
+    <button data-tab="schedule">Zamanlama</button>
+    <button data-tab="settings">Ayarlar</button>
+    <button data-tab="google-guide">Google Sheets kurulumu</button>
+    <button data-tab="help">Yardım ve kılavuz</button>
+  </nav>
+
+  <section data-panel="jobs">
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><h2>İşler</h2><div class="hint">Her iş Excel'de bir sütundur. Açık (yeşil) olanlar "Çalıştır"da ve zamanlanmış görevde çalışır. Kod yazmadan ekleyip değiştirebilirsin.</div></div>
+        <div class="row"><button class="btn primary" id="addJobBtn">+ Yeni iş</button></div>
+      </div>
+      <div class="row" style="margin:12px 0;gap:10px">
+        <label class="row" style="gap:6px"><input type="checkbox" id="selectAllJobs"> Projedeki tüm işleri seç</label>
+        <span class="hint" id="jobSelectionCount">0 iş seçili</span>
+        <button class="btn" type="button" id="enableSelectedJobsBtn" disabled>Seçilenleri aç</button>
+        <button class="btn" type="button" id="disableSelectedJobsBtn" disabled>Seçilenleri kapat</button>
+        <button class="btn danger" type="button" id="deleteSelectedJobsBtn" disabled>Seçilenleri sil</button>
+        <button class="btn" type="button" id="transferJobsBtn" disabled>Seçilenleri başka projeye…</button>
+        <button class="btn danger" type="button" id="deleteAllJobsBtn">Bu projedeki tüm işleri sil</button>
+      </div>
+      <div class="row" style="margin:12px 0">
+        <input type="search" id="jobSearch" aria-label="Projenin işlerinde ara" placeholder="İşlerde ara…" style="max-width:300px">
+        <select id="jobTypeFilter" aria-label="İş türü" style="width:auto"></select>
+        <span class="hint" id="jobPageInfo"></span>
+        <button class="btn small" id="jobsPrevious" type="button">Önceki işler</button>
+        <button class="btn small" id="jobsNext" type="button">Sonraki işler</button>
+      </div>
+      <div class="jobs" id="jobList"></div>
+    </div>
+  </section>
+
+  <section data-panel="run" class="hidden">
+    <div class="grid2">
+      <div class="card">
+        <h2>1 · Panel oturumu</h2>
+        <div class="hint" id="loginHint"></div>
+        <button class="btn" id="loginBtn">Giriş yap / oturumu yenile</button>
+      </div>
+      <div class="card">
+        <h2>2 · Çalıştır <button type="button" class="info-btn" data-info="run" aria-label="Çalıştırma hakkında bilgi">i</button></h2>
+        <div class="hint">Önce "Test et" ile panelde elle aldığın sayılarla karşılaştır. Doğruysa "Çalıştır ve Excel'e yaz".</div>
+        <div class="row" style="margin-bottom:10px">
+          <button class="btn primary" id="runBtn">Çalıştır ve Excel'e yaz</button>
+          <button class="btn" id="testBtn">Test et (çıktıya yazma)</button>
+          <button class="btn danger hidden" id="cancelBtn">Durdur</button>
+        </div>
+        <label class="row" style="gap:8px"><input type="checkbox" id="watchChk"> İzleme modu: tarayıcı görünür ve yavaş çalışır (sorun ararken)</label>
+        <h3>Tarih (isteğe bağlı)</h3>
+        <div class="row"><input type="date" id="runStart" style="width:auto" aria-label="Başlangıç"> – <input type="date" id="runEnd" style="width:auto" aria-label="Bitiş"><button class="btn small" id="runDateClear" type="button">Temizle</button></div>
+        <label class="row" style="gap:8px;margin-top:8px"><input type="checkbox" id="splitChk"> Her günü ayrı çek (aralıktaki her günün sonucu ayrı gelir; Test et'te yalnız gösterilir, Çalıştır'da kendi sütununa yalnız boş hücrelere yazılır; Event ve Segment hesapla işleri gün gün, People/Tag/Segment sayısı bir kez çekim anında)</label>
+        <div class="hint" style="margin-top:6px">Boş bırakırsan her iş kendi tarihini kullanır (çoğunlukla dün). Seçersen bu çalışmada <b>tüm Event ve Segment hesapla işleri</b> bu günleri okur; geçmiş bir günü yeniden çekmek için. People/Tag/Segment sayısı geçmişe göre alınamaz: hangi tarihi seçersen seç <b>çekim anındaki güncel sayı</b> alınır ve sonuçta "çekim anı" notu düşülür.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2>Akış</h2><span class="hint" id="taskName"></span></div>
+      <div class="console" id="console" aria-live="polite">Henüz işlem yok.</div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div><h2>Son sonuçlar</h2><div class="hint" id="lastRunInfo"></div></div>
+        <div class="row">
+          <button class="btn small" data-open="excel">Excel'i aç</button>
+          <button class="btn small" data-open="folder">Klasörü aç</button>
+          <button class="btn small" id="rebuildBtn">Excel'i yeniden oluştur</button>
+          <button class="btn small" id="diagBtn" title="Hata anındaki ekran yapısı; sayılar maskeli">Teşhis kayıtları</button>
+        </div>
+      </div>
+      <p id="writeRetryInfo" class="hint" aria-live="polite"></p>
+      <div class="tw"><table class="res"><thead><tr><th>İş</th><th>Sütun</th><th>Dönem</th><th style="text-align:right">Değer</th><th>Durum</th></tr></thead><tbody id="resBody"></tbody></table></div>
+    </div>
+  </section>
+
+  <section data-panel="schedule" class="hidden">
+    <div class="card">
+      <h2>Otomatik çalışma saatleri <button type="button" class="info-btn" data-info="schedule" aria-label="Zamanlama hakkında bilgi">i</button></h2>
+      <div class="hint">Windows Görev Zamanlayıcı'ya senin kullanıcınla kaydedilir (yönetici yetkisi gerekmez). Bilgisayar açık ve Windows oturumun açık olmalı; kapalıysa açılınca bir kez çalışır.</div>
+      <label class="f" style="max-width:540px;margin-top:12px">Görev adı<input type="text" id="taskNameInput" maxlength="80" placeholder="Ör. Demo günlük raporu"><small>Windows'ta görünecek ad: <span id="taskNamePreview"></span></small></label>
+      <h3>Saatler</h3>
+      <div class="chips" id="timeChips"></div>
+      <div class="row" style="margin-top:8px"><input type="time" id="timeInput" value="09:00" style="width:auto"><button class="btn small" id="addTimeBtn">Saat ekle</button></div>
+      <h3>Günler</h3>
+      <div class="checks" id="dayChecks"></div>
+      <h3>Görev</h3>
+      <div class="row">
+        <button class="btn primary" id="installBtn">Kaydet ve Görev Zamanlayıcı'ya kur</button>
+        <button class="btn" id="resetTaskBtn">Temizle ve baştan oluştur</button>
+        <button class="btn danger" id="removeTaskBtn">Bu projenin görevlerini sil</button>
+        <span class="pill" id="taskPill">kontrol ediliyor…</span>
+      </div>
+      <div class="hint" style="margin-top:10px">Temizle ve baştan oluştur: bu projeye ait eski görevleri kaldırır, seçtiğin ad ve saatlerle yeniden kurar. İşler, saatler, Excel ve oturum bilgileri korunur.</div>
+      <div id="relatedTasks" class="preview" aria-live="polite">İlişkili görevler kontrol ediliyor…</div>
+      <div class="status-grid" id="taskDetails" aria-live="polite"></div>
+      <div id="scheduledReceipt" class="preview" role="status">Zamanlanmış çalışma bilgisi henüz alınmadı.</div>
+      <div class="row" style="margin-top:12px"><button type="button" class="btn" id="refreshTaskBtn">Durumu yenile</button><button type="button" class="btn" id="runTaskBtn" disabled>Görevi şimdi çalıştır (Excel'e yazar)</button><button type="button" class="btn" data-open="logs">Çalışma kayıtlarını aç</button></div>
+      <div class="hint" style="margin-top:10px">Zamanlanmış çalışmanın kaydı: <code id="logPath"></code>. Uygulama klasörünü taşırsan görevi yeniden kur.</div>
+    </div>
+  </section>
+
+  <section data-panel="settings" class="hidden">
+    <div class="card">
+      <h2>Proje ayarları</h2>
+      <div class="hint">Proje = bir Netmera uygulaması + iş listesi + Excel/Sheets hedefi + saatler. Başka bir uygulama veya ayrı rapor seti için yeni proje aç.</div>
+      <div class="grid2">
+        <label class="f">Proje adı<input type="text" id="setName"></label>
+        <label class="f">Veri kaynağı<select id="setSource"></select></label>
+        <label class="f">Netmera uygulama adı<input type="text" id="setApp" placeholder="Panelde sol üstte görünen ad, birebir"><small>Yanlış uygulamada sayı okunmaz; çalışma durur.</small></label>
+        <label class="f">Çıktı hedefi<select id="setOutputTarget"><option value="excel">Yerel Excel (.xlsx)</option><option value="google_sheets">Google Sheets</option></select></label>
+        <label class="f hidden" id="setSheetsWrap">Google Sheets dosya bağlantısı<input type="text" id="setSheets" placeholder="https://docs.google.com/spreadsheets/d/…/edit"><small>Tarayıcıda dosyayı aç, adres çubuğundaki bağlantıyı kopyalayıp buraya yapıştır. Bağlayacağın Google hesabının bu dosyada <b>Düzenleyen</b> yetkisi olmalı. Yalnız eşlediğin hücreler yazılır.</small></label>
+        <label class="f" id="setOutputWrap">Excel çıktı dosyası
+          <span class="row" style="flex-wrap:nowrap"><input type="text" id="setOutput" placeholder="C:/Raporlar/netmera-sonuclar.xlsx"><button class="btn small" id="pickBtn" type="button">Seç…</button></span>
+          <small>OneDrive ve uygulama klasörü dışında, yerel bir yol.</small></label>
+        <label class="f"><span>Sonuçlar nasıl yerleşsin? <button type="button" class="info-btn" data-info="excel" aria-label="Excel yazma seçenekleri hakkında bilgi">i</button></span><select id="setExcelMode"></select><small id="excelModeHint"></small></label>
+        <label class="f hidden" id="setExcelSheetWrap"><span id="excelSheetLabel">Hedef sayfa adı</span><input type="text" id="setExcelSheet" maxlength="31" placeholder="Netmera"><small>Alt satıra eklemede mevcut sayfanın adı; yeni sayfada adın başlangıcı.</small></label>
+        <label class="f">Tarayıcı<select id="setBrowser"></select><small>Bilgisayarda kurulu gerçek Chrome/Edge kullanılır, ayrı "Netmera Otomasyonu" profiliyle.</small></label>
+        <label class="f">Adım zaman aşımı (sn)<input type="number" id="setTimeout" min="10" max="300"><small>Bir adım bu süre içinde bitmezse hata verilir.</small></label>
+        <label class="f">Adımlar arası bekleme (ms)<input type="number" id="setDelay" min="0" max="3000" step="50"><small>Her tıklama/yazma sonrası bekler. Panel yavaşsa artır (ör. 500–1000).</small></label>
+      </div>
+      <div id="googleCard" class="gcard hidden">
+        <div class="section-title"><h2>Bu projenin Sheets erişimi</h2><span class="pill" id="googlePill">Kurulmadı</span><span class="grow"></span><button type="button" class="info-btn" data-info="google" aria-label="Google bağlantısı hakkında bilgi">i</button></div>
+        <p class="hint">Google hesabı ve OAuth JSON dosyası bütün projelerde ortaktır. Hesabını tek yerden yönet: <a class="btn" id="manageGoogleLink" href="#/ga4/baglanti">Google bağlantısı</a>. Bu projeye ait dosya bağlantısı ve hücre eşlemeleri burada kalır.</p>
+        <div class="row"><button type="button" class="btn" id="checkGoogleBtn">Dosya erişimini doğrula (yazmaz)</button><a class="btn" id="openGoogleGuideBtn" href="#/google">Kurulum rehberi</a></div>
+        <div id="googleStatus" class="gstatus" role="status" aria-live="polite"></div>
+      </div>
+      <div id="cellMappingCard" class="hidden" style="margin-top:18px">
+        <div class="section-title"><h2>İş → hedef hücre</h2><button type="button" class="info-btn" data-info="mapping" aria-label="Hücre eşleme hakkında bilgi">i</button></div>
+        <p class="hint">Sabit hücre, tarih satırı, gün başına +1 kayma veya başlık satırında tarih/gün no araması seç. Aynı sonuç birden çok hücreye eşlenebilir. Aynı rapor gününü tekrar çalıştırmak hedefi yeniden kaydırmaz.</p>
+        <div id="mappingRows"></div><div class="row"><button type="button" class="btn" id="addMappingBtn">+ Hücre eşlemesi</button><button type="button" class="btn" id="previewMappingBtn">Son testle önizle (yazmaz)</button></div>
+        <div id="mappingPreview" class="hint" style="margin-top:12px"></div>
+      </div>
+      <h3>Seçenekler</h3>
+      <label class="row" style="gap:8px;margin-bottom:6px"><input type="checkbox" id="setHeadless"> Tarayıcıyı gizli çalıştır (ilk testler bitince önerilir)</label>
+      <div class="grid2" style="margin:10px 0">
+        <label class="f">Kaçan günleri tamamla (en çok kaç gün geriye)<input type="number" id="setCatchUp" min="0" max="14" step="1"><small>Hafta sonu veya bilgisayar kapalıyken kaçan günlerin Event verisini sonraki çalışmada çeker; yalnız <b>boş</b> hücrelere yazar. People/Tag/Segment geçmişe dönük alınamaz. 0 = kapalı. Yalnız “Belirli hücrelere yaz” ve “Dün” dönemli işlerde.</small></label>
+        <div class="f"><span>Windows bildirimi</span><label class="row" style="gap:8px;font-weight:400"><input type="checkbox" id="setNotify"> Zamanlanmış çalışma bitince sonucu bildir</label><span class="row"><button type="button" class="btn small" id="notifyTestBtn">Bildirimi dene</button></span><small>Şirket bilgisayarında bildirimler kapalı olabilir; önce “Bildirimi dene” ile kontrol et. Çıkmazsa çalışma etkilenmez.</small></div>
+      </div>
+      <div class="checks" id="onErrorRadios" style="flex-direction:column;align-items:flex-start"></div>
+      <div class="row" style="margin-top:14px"><button class="btn primary" id="saveSettingsBtn">Ayarları kaydet</button><span class="err-text" id="settingsErr"></span></div>
+    </div>
+    <div class="card hidden" id="loginConfigCard">
+      <div class="section-title"><h2>Otomatik giriş</h2><button type="button" class="info-btn" data-info="login" aria-label="Otomatik giriş hakkında bilgi">i</button></div>
+      <div class="hint">Netmera oturumu giriş sayfasına düşerse bu projeye kayıtlı hesapla bir kez yeniden giriş yapılır. Bilgileri aşağıya doldur; config dosyasını uygulama oluşturur.</div>
+      <div class="grid2" style="margin-top:12px">
+        <label class="f">E-posta / kullanıcı adı<input id="loginUsername" type="text" maxlength="320" autocomplete="username" placeholder="Netmera hesabının e-postası"></label>
+        <label class="f">Şifre<input id="loginPassword" type="password" maxlength="1024" autocomplete="new-password" placeholder="İlk kayıtta şifreni gir"><small id="loginPasswordHint">Şifre kaydedildikten sonra burada gösterilmez.</small></label>
+      </div>
+      <label class="row" style="gap:8px;margin-bottom:8px"><input type="checkbox" id="loginEnabled"> Oturum bittiğinde otomatik giriş yap</label>
+      <label class="row" style="gap:8px;margin-bottom:8px"><input type="checkbox" id="loginKeep" checked> Netmera'da “Keep me logged in” seçili olsun</label>
+      <div class="hint">Şifre Windows hesabına bağlı korumayla kaydedilir. Şirket bilgisayarına geçince bilgileri orada yeniden doldur.</div>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="saveLoginConfigBtn">Giriş ayarlarını kaydet</button><button class="btn" id="refreshLoginConfigBtn">Durumu yenile</button><button class="btn" id="openLoginConfigBtn">Config dosyasını aç</button><button class="btn danger" id="clearLoginConfigBtn">Giriş bilgilerini temizle</button></div>
+      <div class="hint" id="loginConfigStatus" role="status"></div>
+      <div class="hint" style="overflow-wrap:anywhere">Config: <code id="loginConfigPath"></code></div>
+      <div class="err-text" id="loginConfigErr"></div>
+    </div>
+    <div class="card">
+      <h2>Panelden event listesi</h2>
+      <div class="hint">Event Insight arama listesindeki adları okur (yalnız adlar; sayı veya kişi verisi okunmaz). İş eklerken öneri olarak çıkar. <span class="tag exp">deneysel</span></div>
+      <div class="row"><button class="btn" id="catalogBtn">Event adlarını al</button><span class="hint" id="catalogInfo"></span></div>
+    </div>
+    <div class="card">
+      <h2>Proje işlemleri</h2>
+      <div class="row"><button class="btn" id="copyProfileBtn">Bu projeyi kopyala</button><button class="btn" data-open="data">Veri klasörünü aç</button><button class="btn danger" id="deleteProfileBtn">Projeyi sil</button></div>
+    </div>
+  </section>
+
+  <section data-panel="help" class="hidden">
+    <div class="card guide-card ghero">
+      <h2>Kullanım kılavuzu</h2>
+      <p class="hint">Bu uygulama, her gün Netmera'ya girip senin yerine sayıları okur ve raporundaki doğru hücreye yazar. Aşağıda önce bir kez yapılacak kurulum, sonra her gün ve her ay ne olduğu, en altta da sık sorulan sorular var. Bir başlığa tıklayınca açılır.</p>
+      <div class="gprogress" id="helpJump">
+        <span><i>1</i>Kurulum (bir kez)</span><span><i>2</i>Her gün</span><span><i>3</i>Her ay</span><span><i>?</i>Sık sorulanlar</span>
+      </div>
+    </div>
+
+    <div class="card guide-card">
+      <div class="gpart"><span class="gtag">1</span><div><h2>Kurulum: bir kez yapılır</h2><p class="hint">Yaklaşık 30 dakika. Sırayla git; her adımın sonunda ne görmen gerektiği yazıyor.</p></div></div>
+
+      <article class="gstep"><span class="gnum">1</span><div class="gbody">
+        <h3>Uygulamayı aç</h3>
+        <p>ZIP dosyasını <b>OneDrive dışında</b> bir klasöre aç (ör. <code>C:\Araclar\NetmeraOtomasyonu</code>). İçindeki <b>NetmeraOtomasyonu.cmd</b> dosyasına çift tıkla. Tarayıcıda bu ekran açılır. Siyah pencere açık kalmalı; onu kapatırsan bu ekran da kapanır (zamanlanmış görevler yine çalışır).</p>
+        <p>Yeni bir sürüm kuruyorsan: eski siyah pencereyi kapat, yeni ZIP'i yeni bir klasöre aç. Projelerin, işlerin ve bağlantıların kaybolmaz; bilgisayarda ayrı bir yerde saklanır. Sonra <b>Zamanlama → Kaydet ve Görev Zamanlayıcı'ya kur</b> de.</p>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">2</span><div class="gbody">
+        <h3>Projeyi aç ve Netmera'ya bağlan</h3>
+        <ol>
+          <li><b>Ayarlar</b> sekmesinde <b>Netmera uygulama adı</b>nı panelde sol üstte nasıl yazıyorsa öyle yaz.</li>
+          <li><b>Otomatik giriş</b> bölümüne Netmera e-postanı ve şifreni yaz, “Oturum bittiğinde otomatik giriş yap”ı aç, kaydet. Şifre bu bilgisayarda Windows korumasıyla saklanır.</li>
+          <li>İstersen <b>Çalıştır → Giriş yap</b> ile bir kez kendin de girebilirsin.</li>
+        </ol>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">3</span><div class="gbody">
+        <h3>Raporu bağla (Google Sheets)</h3>
+        <ol>
+          <li>Raporu tarayıcıda aç. Adının yanında yeşil <b>.XLSX</b> yazıyorsa bu bir Excel dosyasıdır ve Google buna yazdırmaz: <b>Dosya → Google E-Tablolar olarak kaydet</b> ve yeni dosyayı kullan.</li>
+          <li>Adres çubuğundaki bağlantıyı kopyala. <b>Ayarlar → Çıktı hedefi → Google Sheets</b> seç, bağlantıyı yapıştır, <b>Ayarları kaydet</b>.</li>
+          <li>Kenar çubuğundaki <b>Google bağlantısı</b> ekranını aç. GA4 için kaydettiğin JSON ve hesap burada bütün projelerde kullanılır. Gerekirse <b>Google hesabımla bağlan</b> ile Analytics ve Google E-Tablolar izinlerini onayla. Ayarlar’a dönüp <b>Dosya erişimini doğrula (yazmaz)</b> ile hedefi kontrol et.</li>
+          <li>Google Cloud tarafını hiç kurmadıysan <b>Google Sheets kurulumu</b> sekmesindeki adımları izle.</li>
+        </ol>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">4</span><div class="gbody">
+        <h3>İşleri tanımla: “ne çekilecek?”</h3>
+        <p>Her iş, Netmera'dan okunacak <b>bir sayı</b>dır. <b>İşler → + Yeni iş</b>. Raporundaki A sütununda yazan tarif sana yol gösterir:</p>
+        <ul>
+          <li>“event Analytics &gt; Tag filtresi &gt; Open APP” → <b>Event Insight</b> işi: event adı, hedef <b>Tag</b>, metrik <b>Unique</b> veya <b>Total</b>, dönem <b>Dün</b>.</li>
+          <li>“targeting &gt; people &gt; greater than 1.2.3” → <b>People</b> işi: sürüm kuralı.</li>
+        </ul>
+        <p>Her işte <b>Dene</b> düğmesi o işi çalıştırıp sayıyı gösterir; rapora yazmaz. Paneldeki sayıyla karşılaştır.</p>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">5</span><div class="gbody">
+        <h3>Hücreleri eşle: “nereye yazılacak?”</h3>
+        <p>Raporunda tarihler bir satırda yan yana duruyor (C = 1 Ekim, D = 2 Ekim…). Uygulamaya iki <b>satır numarası</b> söylersin; satır numarası Google Sheets'te en soldaki gri sütunda yazan sayıdır.</p>
+        <ol>
+          <li><b>Yazılacak satır:</b> her gün elle doldurduğun sarı satırın numarası (ör. 14).</li>
+          <li><b>Başlık satırı:</b> o sarı satırın üstünde tarihlerin yazdığı satırın numarası (ör. 13).</li>
+          <li><b>Ayarlar → + Hücre eşlemesi</b>: İş sonucu, Hedef sayfa (sekme adını kopyala-yapıştır), Yerleştirme = <b>Başlık satırında bul</b>, iki satır numarası, “Hangi güne göre?” = Event için <b>Verinin günü</b>, People için <b>Bir önceki gün</b>. Kaydet.</li>
+        </ol>
+        <p>Uygulama her gün başlık satırında dünün tarihini kendisi bulur. Hangi sütundan başladığı, kaç sütun sürdüğü önemli değil.</p>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">6</span><div class="gbody">
+        <h3>Yazmadan kontrol et</h3>
+        <ol>
+          <li><b>Çalıştır → Test et (çıktıya yazma)</b>: tüm işler çalışır, sayılar ekranda görünür, rapora yazılmaz.</li>
+          <li><b>Ayarlar → Son testle önizle (yazmaz)</b>: “DemoCampaign Veriler!S14 · 12345” gibi satırlar görürsün. Bu, “17 Ekim'in sayısı S14'e yazılacak” demektir.</li>
+          <li>Doğruysa ilk gerçek yazımı raporun bir <b>kopyasında</b> <b>Çalıştır ve Sheets'e yaz</b> ile dene.</li>
+        </ol>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">7</span><div class="gbody">
+        <h3>İstersen geçmiş günleri bir kerede doldur</h3>
+        <p><b>Çalıştır</b> sekmesinde Tarih alanına aralık seç (ör. 12.10 – 18.10), <b>Her günü ayrı çek ve kendi sütununa yaz</b> kutusunu işaretle, <b>Çalıştır</b>. Her gün ayrı sorgulanır ve kendi sütununa yazılır. Yalnız boş hücrelere yazar; elle girdiklerine dokunmaz. People sayıları geçmiş için alınamaz, onlar çalıştırılmaz.</p>
+      </div></article>
+
+      <article class="gstep"><span class="gnum">8</span><div class="gbody">
+        <h3>Zamanlamayı kur</h3>
+        <ol>
+          <li><b>Zamanlama</b> sekmesinde saat ekle (ör. 09:00), günleri seç.</li>
+          <li><b>Kaydet ve Görev Zamanlayıcı'ya kur</b>. “Görev kurulu” yazar.</li>
+          <li><b>Ayarlar → Bildirimi dene</b>: sağ altta bildirim çıktıysa “Zamanlanmış çalışma bitince sonucu bildir”i aç.</li>
+        </ol>
+      </div></article>
+    </div>
+
+    <div class="card guide-card">
+      <div class="gpart"><span class="gtag">2</span><div><h2>Her gün: senin bir şey yapmana gerek yok</h2></div></div>
+      <ul>
+        <li>Bilgisayar açıkken seçtiğin saatte uygulama kendisi çalışır. O saatte kapalıysa açılınca bir kez çalışır.</li>
+        <li>Netmera'ya girer; oturum düştüyse kayıtlı bilgilerle yeniden girer.</li>
+        <li>Event işlerinde <b>dünün</b> sayısını çeker. People işlerinde o anki sayıyı alıp <b>dünün</b> sütununa yazar (sen de böyle yapıyordun: 18'inde çekip 17'sine).</li>
+        <li><b>Pazartesi</b>: Pazar'ı normal yazar, Cuma ve Cumartesi'nin Event verisini de kendisi tamamlar (<b>Kaçan günleri tamamla</b>, Ayarlar'da, varsayılan 7 gün).</li>
+        <li>Bir sayı okunamazsa hücreye 0 yazmaz; eski değer kalır, hata gösterilir. Formüllü, birleştirilmiş, korumalı hücreye hiç yazmaz.</li>
+        <li>Sonucu görmek için: bildirim açıksa sağ alttaki mesaj; değilse <b>Çalıştır → Son sonuçlar</b> veya <b>Zamanlama</b> sekmesi.</li>
+      </ul>
+    </div>
+
+    <div class="card guide-card">
+      <div class="gpart"><span class="gtag">3</span><div><h2>Her ay: zaten yaptığın şey</h2></div></div>
+      <p>Ay başında raporu kaydırırken (Ekim'i arşive ve “Eylül” satırına yapıştırıp sarı alanı temizlemek) başlıktaki <b>ilk tarihi</b> yeni ayın 1'i yaparsın. Uygulama yeni aya kendisi geçer. Bunu unutursan uygulama yanlış yere yazmaz: “başlık tarihini güncelleyin” der ve bekler.</p>
+      <p class="hint">İpucu: bloklardaki ilk tarih hücrelerini tek bir hücreye bağlarsan (<code>=B6</code> gibi) her ay yalnız bir hücreyi değiştirirsin.</p>
+    </div>
+
+    <div class="card guide-card">
+      <h2>Sık sorulanlar</h2>
+      <p class="hint">Bugüne kadar sorulan sorular ve sade cevapları.</p>
+
+      <h3>Tarihler ve günler</h3>
+      <details><summary>İşler'de “Dönem”, Çalıştır'da “Tarih”, eşlemede “Hangi güne göre?” var. Farkları ne?</summary><div class="hint">
+        <p>Üçü farklı soruları cevaplar:</p>
+        <ul>
+          <li><b>İşler → Dönem:</b> Netmera'da hangi günün verisi sorgulansın? Her çalışmada geçerlidir. Günlük rapor için <b>Dün</b>.</li>
+          <li><b>Çalıştır → Tarih:</b> yalnız bu seferlik başka bir gün mü? Zamanlanmış görev bunu hiç kullanmaz. Günlük kullanımda <b>boş bırak</b>; geçmiş bir günü yeniden çekmek için kullan.</li>
+          <li><b>Hangi güne göre?:</b> çekilen sayı hangi tarihin sütununa yazılsın? Event için <b>Verinin günü</b>, People için <b>Bir önceki gün</b>. “Çalışmanın başladığı gün” senin raporunda gerekmez.</li>
+        </ul>
+        <p>Örnek, 18 Ekim sabahı: Event işi 17 Ekim'i sorgular ve 17 Ekim sütununa yazar. People işi 18 Ekim sabahki sayıyı 17 Ekim sütununa yazar.</p></div></details>
+      <details><summary>Tarih satırını nasıl işaretleyeceğim? Seçme nasıl yapılıyor?</summary><div class="hint">
+        <p>Tıklayarak işaretlemezsin; <b>satır numarasını okuyup kutuya yazarsın</b>. Satır numarası Google Sheets'te en soldaki gri sütundaki sayıdır. Sarı satırın numarası “yazılacak satır”, onun üstünde tarihlerin yazdığı satırın numarası “başlık satırı”dır. Aynı bloktaki sarı satırların başlığı aynıdır.</p></div></details>
+      <details><summary>Bütün satırlar aynı yerde başlamıyor; bazı bloklar Eylül'den başlayıp çok sağa gidiyor. Nasıl buluyor?</summary><div class="hint">
+        <p>Uygulama sütun ezberlemez. Verdiğin başlık satırının <b>tamamına</b> bakar ve dünün tarihinin yazdığı tek hücreyi bulur. Eylül ve Ekim yan yana duran blokta 17 Ekim örneğin AV sütunundadır; uygulama onu bulup AV'nin sarı satırına yazar. Bir sonraki ayın tek bir günü (ör. 30 günlük ayın 31. sütununda görünen 1 Kasım) “taşan gün” sayılır, oraya yazılmaz.</p></div></details>
+      <details><summary>Her gün başlık tarihini güncelleyecek miyim?</summary><div class="hint">
+        <p>Hayır. Başlıkta ayın bütün günleri zaten yazılıdır; uygulama her gün doğru sütunu kendisi bulur. Yalnız <b>ayda bir</b>, ay başında ilk tarihi değiştirirsin (zaten yapıyordun).</p></div></details>
+      <details><summary>Başlıkta tarih nasıl yazılmış olmalı? Her biçimi tanır mı?</summary><div class="hint">
+        <p><b>Gerçek tarih hücresi</b> (Sheets/Excel tarih biçimli) her zaman tanınır; ekranda nasıl göründüğü önemli değildir.</p>
+        <p>Elle yazılmış metinlerde de şunlar tanınır:</p>
+        <ul>
+          <li>Rakamla: <code>17.10.2026</code>, <code>17/10/2026</code>, <code>17-10-2026</code>, <code>17.10.26</code>, <code>2026-10-17</code>, <code>2026.10.17</code>, <code>2026/10/17</code>, <code>20261017</code>; sonunda saat olsa da olur.</li>
+          <li>Ay adıyla (Türkçe/İngilizce, uzun/kısa, Türkçe karaktersiz de): <code>17 Ekim 2026</code>, <code>17 Eki</code>, <code>Ekim 17</code>, <code>17-Oct-2026</code>, <code>Oct 17th, 2026</code>.</li>
+          <li>Gün adıyla: <code>Cuma 17 Ekim</code>, <code>Cum, 17.10.2026</code>.</li>
+          <li>Yılsız: <code>17 Ekim</code>, <code>17.10</code>, <code>17/10</code>. Yalnız gün: <code>17</code> (sayı veya metin), <code>17.</code>, <code>Cuma 17</code>.</li>
+        </ul>
+        <p><b>Gün mü önce, ay mı?</b> <code>05/10/2026</code> varsayılan olarak <b>5 Ekim</b> okunur. Satırda <code>10/17/2026</code> gibi kesin bir Amerikan örneği varsa bütün satır Amerikan sayılır. Hiç kesin örnek yoksa ve başlıkların Amerikan ise eşlemede <b>Tarih yazımı → Ay önce</b> seç. Bir satırda iki biçim karışıksa uygulama yazmaz.</p>
+        <p>“Toplam”, “Hafta 3” gibi tarih olmayan hücreler yok sayılır. Tanınmayan bir yazım varsa uygulama yanlış yere yazmaz; “bulunamadı” der.</p></div></details>
+      <details><summary>Ayın 31'inde bazı satırlara neden yazmıyor?</summary><div class="hint">
+        <p>O bloğun başlığında 31. gün yoksa (başlık 30'unda bitiyorsa) tarih bulunamaz. DemoCampaign sayfasında satır 1 ve 13 böyleydi: AG1'e <code>=AF1+1</code>, AG13'e <code>=AF13+1</code> yaz.</p></div></details>
+      <details><summary>Ay adlı satırlar (Ağustos, Eylül, Ekim) için ne yapmalıyım?</summary><div class="hint">
+        <p>Üstte 1–31 gün numaraları, solda ay adı olan bloklarda da <b>Başlık satırında bul</b> çalışır: başlık satırı gün numaralarının satırı, yazılacak satır o ayın satırı. <b>Ay adı kontrol hücresi</b>ne o satırın ay adının yazdığı hücreyi yaz (ör. A82). Ayları kaydırmayı unutursan ad tutmaz ve uygulama yazmaz.</p></div></details>
+      <details><summary>Pazartesi 3 günü dolduruyorum. Bilgisayar kapalıyken ne oluyor?</summary><div class="hint">
+        <p><b>Kaçan günleri tamamla</b> (Ayarlar, varsayılan 7 gün) bunu çözer: uygulama en son hangi günü çektiğini bilir; aradaki günlerin Event verisini sonraki çalışmada çeker ve yalnız <b>boş</b> hücrelere yazar. People sayıları geçmiş için alınamaz; o hücreler boş kalır ve kayda not düşülür. Uygulama hiç çalışmadan önceki günlere kendiliğinden gitmez; onlar için kurulumdaki 7. adımı kullan.</p></div></details>
+      <details><summary>Önceki 7 günü bir kerede nasıl doldururum?</summary><div class="hint">
+        <p>Çalıştır'da aralığı seç ve <b>Her günü ayrı çek ve kendi sütununa yaz</b> kutusunu işaretle. Kutu işaretli değilse aralık tek sorgu olur ve 7 günün <b>toplamı</b> alınır; günlük eşleme bunu reddeder.</p></div></details>
+      <details><summary>Doğru sonucu alamayınca kaç kez tekrar ediyor?</summary><div class="hint">
+        <p>Her iş <b>en çok 3 kez</b> okunur (ilk deneme + 2 tekrar). Bir düğme bulunamaz, sayfa geç yüklenir veya tablo okunamazsa panel sıfırlanıp aynı iş baştan denenir. 3 denemede de olmazsa o iş hatalı sayılır, hücreye 0 yazılmaz, eski değer kalır ve diğer işlere geçilir.</p>
+        <p>Uygulama bir sayının “doğru” olup olmadığını bilemez; okuyabildiği sayıyı yazar. Bu yüzden ilk kurulumda <b>Dene</b> ile paneldeki sayıyla karşılaştır.</p>
+        <p>Tekrar denenmeyenler: Netmera oturumu açılamadı (şifre/kod), panelde yanlış uygulama açık, sen Durdur dedin. Oturum çalışma ortasında düşerse bir kez yeniden girilir; bu, 3 denemeden sayılmaz. Google'a yazım körlemesine tekrarlanmaz; bekleyen yazım “Sheets yazımını yeniden dene” ile veya sonraki çalışmada aynı hücreye yapılır.</p></div></details>
+      <details><summary>Lansman döneminde günde 2–3 kez çalışsın istiyorum.</summary><div class="hint">
+        <p><b>Zamanlama</b>'da ikinci, üçüncü saati ekleyip görevi yeniden kur. Aynı gün tekrar çalışınca aynı hücre son değerle güncellenir. Dönem bitince saati kaldır ve görevi yeniden kur.</p></div></details>
+      <details><summary>Netmera bir günün verisini sonradan da işliyor. Sorun olur mu?</summary><div class="hint">
+        <p>Sabah çalışması o andaki değeri yazar. Değerin oturması önemliyse öğlen ikinci bir saat ekle; aynı hücre güncellenir.</p></div></details>
+
+      <h3>Google Sheets</h3>
+      <details><summary>Google bağlantısı için ne gerekiyor? API anahtarı mı?</summary><div class="hint">
+        <p>API anahtarı, service account veya Google Authenticator kullanılmaz. Google Cloud'da bir kez “Desktop app” türünde bir OAuth istemcisi oluşturulur; her kişi <b>kendi</b> Google hesabıyla <b>Google ile bağlan</b> der. Adımlar <b>Google Sheets kurulumu</b> sekmesinde.</p></div></details>
+      <details><summary>Herkes Google Cloud kurulumunu yapmak zorunda mı?</summary><div class="hint">
+        <p>Hayır. Bir kişi kurar, JSON'u seçer ve <b>Ekip paketine ekle</b>'ye basar. Uygulama klasörünü alan diğerleri dosya seçmeden kendi hesaplarıyla bağlanır. Dosyada hesap veya şifre yoktur; yalnız şirket içinde paylaş.</p></div></details>
+      <details><summary>Uygulama dosyayı Google'dan kendisi indiremez mi?</summary><div class="hint">
+        <p>Hayır. Google, masaüstü OAuth istemcisini program yoluyla oluşturmaya izin vermiyor; bu adım yalnız Google Cloud ekranından yapılabiliyor. Bu yüzden kurulum ekipte bir kez yapılıp paylaşılır. Ortak <b>Google bağlantısı</b> ekranında JSON’u seçip <b>İstemciyi kaydet</b>, ardından <b>Google hesabımla bağlan</b>’a bas. GA4 ve Sheets aynı hesabı kullanır.</p></div></details>
+      <details><summary>İşten ayrılırsam ne olur, ne yapmalıyım?</summary><div class="hint">
+        <p>Herkesin bağlantısı kendi hesabına bağlıdır; diğerleri etkilenmez. Ayrılmadan önce (e-postan kapanmadan):</p>
+        <ol>
+          <li>Google Cloud projesinde (IAM) halefini <b>Owner</b> yap; Branding'deki e-postaları onunkiyle değiştir; Test users listesini güncelle. Projeyi silme.</li>
+          <li>Sahibi olduğun Sheets dosyalarında: Paylaş → halefi Düzenleyen yap → <b>Sahipliği aktar</b>.</li>
+          <li>Kendi bilgisayarında: Zamanlama → görevleri sil; Google bağlantısı → Çıkış yap; Ayarlar → giriş bilgilerini temizle.</li>
+          <li>Halef uygulamayı kurar, <b>Google ile bağlan</b> der, zamanlamayı kurar.</li>
+        </ol></div></details>
+      <details><summary>“Bağlantının süresi doldu” diyor.</summary><div class="hint">
+        <p>Google uygulaması “Testing” durumundaysa Google bağlantıyı 7 günde bir kapatır. <b>Google ile bağlan</b>'a bir kez bas. Kalıcı çözüm Google Cloud'da “Publish app”tir; şirket onayıyla yapılır.</p></div></details>
+      <details><summary>“Google isteği reddetti” veya bir Google kodu görüyorum.</summary><div class="hint">
+        <p>En sık neden: rapor Drive'daki bir <b>.xlsx</b> dosyası. Dosya → Google E-Tablolar olarak kaydet, yeni bağlantıyı yapıştır. Mesajın sonunda “(Google kodu: …)” varsa o kodu ekiple paylaş; neden oradan anlaşılır. Diğer mesajlar için <b>Google Sheets kurulumu</b> sekmesinin en altındaki listeye bak.</p></div></details>
+      <details><summary>Uygulama sayfa adlarını bulabiliyor mu?</summary><div class="hint">
+        <p>Sayfa adını sen yazarsın. <b>Bağlantıyı doğrula</b> dosyadaki bütün sayfa adlarını okur ve yazdığın ad dosyada yoksa uyarır. Büyük/küçük harf fark etmez. Adı sekmeden <b>kopyalayıp yapıştır</b>; elle yazarken büyük “İ” kullanma, eşleşmeyebilir.</p></div></details>
+      <details><summary>Google Sheets kullanmak şirket için uygun mu?</summary><div class="hint">
+        <p>Bu, şirketin kararıdır. Sheets izni hesabın erişebildiği tüm tabloları kapsar; uygulama yalnız seçtiğin dosyanın eşlenen hücrelerine yazar. Onay yoksa yerel Excel hedefini kullan; uygulama onda da aynı şekilde çalışır.</p></div></details>
+
+      <h3>Bildirim ve kurulum</h3>
+      <details><summary>Windows bildirimi şirket bilgisayarında çalışır mı?</summary><div class="hint">
+        <p>Bilgisayara göre değişir. <b>Ayarlar → Bildirimi dene</b>'ye bas: sağ altta bildirim çıktıysa seçeneği aç. Çıkmadıysa şirket ayarı kapatmış olabilir; çalışmalar etkilenmez.</p></div></details>
+      <details><summary>Siyah pencerede “SyntaxWarning: invalid escape sequence” yazdı.</summary><div class="hint">
+        <p>0.12.0'da görülen zararsız bir Python uyarısıydı; 0.13.0'dan itibaren çıkmaz.</p></div></details>
+      <details><summary>Raporun yapısını yerel yapay zekâya nasıl anlattırırım?</summary><div class="hint">
+        <p>Uygulama klasöründeki <code>tools\rapor_yapisi.py</code> raporu hücre adresli bir metne döker (sayıları gizler, tarihleri ve boşlukları hesaplar). Çıktıyı <code>docs\rapor-yapisi-prompt.md</code> içindeki promptla birlikte modele ver.</p></div></details>
+      <details><summary>Uygulama Netmera'da bir şeyi değiştirir mi? Şifrem nerede?</summary><div class="hint">
+        <p>Hayır; yalnız sayıları okur. Segment kaydetmez, dışa aktarmaz, mesaj göndermez. Otomatik giriş için yazdığın şifre ve Google erişimi yalnız bu bilgisayarda, Windows korumasıyla saklanır; başka bilgisayarda yeniden girilir.</p></div></details>
+      <details><summary>Ciro, bilet gibi SQL/SPSS ile çektiğim veriler?</summary><div class="hint">
+        <p>Şimdilik uygulama yalnız Netmera sayılarını yazar. SQL/SPSS çıktılarının aynı yazıcıya bağlanması ileriki bir adım olarak planlandı.</p></div></details>
+    </div>
+
+    <div class="card">
+      <h2>Kodsuz değişenler / kod gerektirenler</h2>
+      <h3>Kodsuz değişenler</h3>
+      <div class="hint">Event adı, property filtresi (Equals, Not Equal, Contains, In, Exists, Not Exists), değerler, metrik (Total / Unique / By Session), Event hedefi (All Users / tek Tag), tarih (dün, bugün, son N gün, belirli aralık; ayrıca Çalıştır'da tek seferlik tarih), platform sütunları (All Total, iOS, Android…), People kuralları (sürüm, App Installation, bağlaç, sayı kaynağı), Tag/Segment adı, saatler, adımlar arası bekleme, Netmera uygulaması (proje), hücre eşlemeleri.</div>
+      <h3>Kod gerektirenler</h3>
+      <div class="hint">Yeni bir Netmera ekranı (ör. Funnel, Push raporları), Event Insight'ta Segment/Profile hedefi veya birden çok Tag, People şeması dışındaki kurallar ve alt filtreler, panelin tasarımının değişmesi. Segment sayısı işi yalnız segmentin üye sayısını okur.</div>
+    </div>
+    <div class="card">
+      <h2>Hata mesajları</h2>
+      <div class="tw"><table class="res"><tbody id="errorTable"></tbody></table></div>
+    </div>
+  </section>
+
+  <section data-panel="google-guide" class="hidden">
+    <div class="card guide-card ghero">
+      <h2>Google Sheets bağlantısı · adım adım</h2>
+      <p class="hint">İki bölüm var. <b>A</b> bölümünü Google Cloud’da bir kez yaparsın (~10 dk). <b>B</b> bölümünü bu uygulamada, her bilgisayarda bir kez yaparsın (~3 dk). B adımlarının yanındaki işaretler gerçek durumu gösterir.</p>
+      <div class="gprogress" id="gProgress" aria-live="polite"></div>
+      <div class="gneed">
+        <div><b>Gerekenler</b>
+          <ul>
+            <li>Şirketin izin verdiği bir Google hesabı</li>
+            <li>Google Cloud’da proje açma veya düzenleme yetkisi (yoksa BT’den iste)</li>
+            <li>Yazılacak Google Sheets dosyasında <b>Düzenleyen</b> yetkisi</li>
+          </ul></div>
+        <div><b>Kullanılmayanlar</b>
+          <ul>
+            <li>API key (API anahtarı)</li>
+            <li>Service account (hizmet hesabı) dosyası</li>
+            <li>Google Authenticator / şifre</li>
+            <li>Netmera API anahtarı</li>
+          </ul></div>
+      </div>
+      <div class="guide-callout warn">Sheets izni, hesabın erişebildiği <b>tüm</b> Google tablolarını kapsayan geniş bir izindir; Google tek dosyaya sınırlı izin vermez. Uygulama yalnız Ayarlar’da seçtiğin dosyanın eşlenen hücrelerine yazar. Şirketin bu izni onaylamıyorsa bağlantıyı kurma, yerel Excel hedefini kullan.</div>
+    </div>
+
+    <div class="card guide-card">
+      <h2>Ekipte kim ne yapar? Biri işten ayrılsa da çalışsın</h2>
+      <p class="hint">Google Cloud kurulumunu (A bölümü) ekipte <b>yalnız bir kişi, bir kez</b> yapar. Diğer herkes uygulamayı açıp <b>Google ile bağlan</b>’a basar ve <b>kendi</b> Google hesabını seçer. Kimse başkasının hesabını veya şifresini kullanmaz.</p>
+      <div class="gneed">
+        <div><b>Kurulumu yapan kişi (bir kez)</b>
+          <ol>
+            <li>Google Cloud projesini mümkünse kişisel değil bir <b>ekip/rol hesabıyla</b> aç (ör. BT’nin açtığı bir ekip e-postasıyla oluşturulmuş Google hesabı; şifresi yöneticide durur).</li>
+            <li>Projeye en az <b>iki sahip</b> ekle: <a href="https://console.cloud.google.com/iam-admin/iam" target="_blank" rel="noopener noreferrer">IAM</a> → <b>Grant access</b> → ekip arkadaşının e-postası → rol <b>Owner</b>.</li>
+            <li>A bölümünü bitir, JSON’u bu uygulamada seç, sonra Google bağlantısı → <b>Ekip paketine ekle</b>.</li>
+            <li>Uygulama klasörünü (NetmeraOtomasyonu) ekip arkadaşlarına şirket içinden ver.</li>
+          </ol></div>
+        <div><b>Biri ayrılırsa</b>
+          <ul>
+            <li>Ayrılan kişi tek sahip değilse Google Cloud projesi ve ekip istemcisi çalışmaya devam eder; herkesin bağlantısı kendi hesabına bağlıdır.</li>
+            <li>Ayrılan kişinin bilgisayarındaki zamanlanmış görev durur. Yerine gelen kişi uygulamayı kurar, <b>Google ile bağlan</b>’a basar ve zamanlamayı yeniden kurar.</li>
+            <li>Rapor Sheets dosyalarının sahibi bir kişi değil ekip/rol hesabı olsun; herkes <b>Düzenleyen</b> olarak eklensin. Kişinin hesabı kapanınca onun sahibi olduğu dosyalar da kaybolabilir.</li>
+            <li>External + Testing kullanılıyorsa ayrılan kişiyi Test users listesinden çıkar, yeni kişiyi ekle.</li>
+          </ul></div>
+      </div>
+      <div class="guide-callout">Ekip istemcisi dosyası (<code>config/google-ekip-istemcisi.json</code>) yalnız uygulamanın Google’daki kimliğidir; içinde hesap, şifre veya erişim belirteci yoktur. Google’a göre masaüstü uygulamalarının istemci sırrı gizli tutulamaz. Yine de dosyayı yalnız şirket içinde paylaş; resmî paket (ZIP) bu dosyayı içermez.</div>
+    </div>
+
+    <div class="card guide-card">
+      <div class="gpart"><span class="gtag">A</span><div><h2>Google Cloud’da hazırlık</h2><p class="hint"><b>Ayarlar’da “Ekip istemcisi hazır” yazıyorsa bu bölümü atla</b>, doğrudan B bölümüne geç. Ekipte yalnız bir kişi bir kez yapar. Menü adları hesabının diline göre Türkçe görünebilir. Her adımda sayfanın üstündeki proje seçicide doğru projenin seçili olduğunu kontrol et.</p></div></div>
+
+      <article class="gstep">
+        <span class="gnum">1</span>
+        <div class="gbody">
+          <h3>Google Cloud projesini seç veya oluştur</h3>
+          <p>Şirketin bir proje verdiyse üstteki proje seçiciden onu seç. Yoksa yeni proje oluştur (ad örneği: <code>Netmera Otomasyonu</code>). Proje açma yetkin yoksa burada dur, BT’den proje iste.</p>
+          <div class="row"><a class="btn small" href="https://console.cloud.google.com/projectcreate" target="_blank" rel="noopener noreferrer">Yeni proje sayfası ↗</a></div>
+        </div>
+      </article>
+
+      <article class="gstep">
+        <span class="gnum">2</span>
+        <div class="gbody">
+          <h3>Google Sheets API’yi aç</h3>
+          <ol><li>Aşağıdaki bağlantıyı aç.</li><li>Mavi <b>Enable / Etkinleştir</b> düğmesine bas. Düğme “Manage / Yönet” yazıyorsa API zaten açıktır.</li></ol>
+          <div class="row"><a class="btn small" href="https://console.cloud.google.com/apis/library/sheets.googleapis.com" target="_blank" rel="noopener noreferrer">Google Sheets API ↗</a></div>
+        </div>
+      </article>
+
+      <article class="gstep">
+        <span class="gnum">3</span>
+        <div class="gbody">
+          <h3>İzin ekranını kur (Google Auth Platform)</h3>
+          <ol>
+            <li>Aşağıdaki bağlantıyı aç, <b>Get started / Başlayın</b>’a bas.</li>
+            <li><b>App information:</b> uygulama adı (ör. <code>Netmera Otomasyonu</code>) ve destek e-postası olarak kendi e-postanı seç.</li>
+            <li><b>Audience / Kitle:</b> aşağıdaki tabloya göre seç.</li>
+            <li><b>Contact information:</b> kendi e-postanı yaz. Koşulları onayla, <b>Create / Oluştur</b>’a bas.</li>
+          </ol>
+          <div class="tw"><table class="res gtable">
+            <thead><tr><th>Seçenek</th><th>Ne zaman?</th><th>Sonuç</th></tr></thead>
+            <tbody>
+              <tr><td><b>Internal</b></td><td>Yalnız şirket Google Workspace kullanıyorsa ve proje o kuruluştaysa.</td><td>Test kullanıcısı gerekmez, 7 günlük süre sınırı yok, “doğrulanmadı” uyarısı çıkmaz.</td></tr>
+              <tr><td><b>External</b> (DemoCompany için)</td><td>Şirket e-postası Google’da değilse (DemoCompany’nun e-postası Microsoft üzerinde görünüyor) veya Internal gri/kapalıysa. Şirket politikası izin vermeli.</td><td>Adım 4 gerekir. Uygulama <b>Testing</b> durumundaysa bağlantı 7 günde bir yenilenmelidir.</td></tr>
+            </tbody>
+          </table></div>
+          <div class="row" style="margin-top:10px"><a class="btn small" href="https://console.cloud.google.com/auth/overview" target="_blank" rel="noopener noreferrer">Google Auth Platform ↗</a></div>
+        </div>
+      </article>
+
+      <article class="gstep">
+        <span class="gnum">4</span>
+        <div class="gbody">
+          <h3>Yalnız External seçtiysen: kendini test kullanıcısı yap</h3>
+          <ol>
+            <li><b>Audience / Kitle</b> sayfasında <b>Test users</b> bölümüne in.</li>
+            <li><b>+ Add users</b> ile bağlanacağın Google e-postasını ekle, kaydet.</li>
+          </ol>
+          <p>Eklemezsen bağlanırken <b>Error 403: access_denied</b> görürsün.</p>
+          <div class="guide-callout warn"><b>Her gün çalışan rapor için önemli:</b> External uygulama <b>Testing</b> durumunda kalırsa herkesin bağlantısı 7 günde bir düşer ve zamanlanmış çalışma durur. Kalıcı kullanım için aşağıdaki notu oku.</div>
+          <details class="gmore"><summary>7 günde bir yeniden bağlanmak istemiyorsan</summary><p class="hint">Testing durumundaki External uygulamada Google bağlantıyı 7 gün sonra sonlandırır; uygulama bunu “süresi doldu” diye bildirir ve <b>Google ile bağlan</b> ile yenilenir. Aynı sayfadaki <b>Publish app</b> ile uygulama “In production” durumuna alınırsa bu sınır kalkar; Google doğrulaması yapılmadığı için izin ekranında “doğrulanmadı” uyarısı görünmeye devam eder. Bunu yapmadan önce şirket onayı al.</p></details>
+          <div class="row"><a class="btn small" href="https://console.cloud.google.com/auth/audience" target="_blank" rel="noopener noreferrer">Audience sayfası ↗</a></div>
+        </div>
+      </article>
+
+      <article class="gstep">
+        <span class="gnum">5</span>
+        <div class="gbody">
+          <h3>Desktop app istemcisi oluştur ve JSON dosyasını indir</h3>
+          <ol>
+            <li><b>Clients / İstemciler</b> sayfasında <b>+ Create client</b>’a bas.</li>
+            <li><b>Application type:</b> <b>Desktop app / Masaüstü uygulaması</b> seç. Ad yaz (ör. <code>Netmera PC</code>), <b>Create</b>’e bas.</li>
+            <li>Açılan pencerede <b>Download JSON</b>’a bas. Dosya adı <code>client_secret_….json</code> gibidir.</li>
+          </ol>
+          <div class="guide-callout">Pencereyi indirmeden kapattıysan JSON’u sonradan alamayabilirsin. Sorun değil: aynı adımlarla yeni bir Desktop app istemcisi oluştur. Dosyayı sohbete, e-postaya veya OneDrive/proje klasörüne koyma; İndirilenler’de kalsın, uygulamaya aktardıktan sonra silebilirsin.</div>
+          <p class="hint"><b>Data Access</b> sayfasına kapsam eklemen gerekmez; uygulama izni bağlanırken ister. Şirketin kapsamın beyan edilmesini istiyorsa <code>https://www.googleapis.com/auth/spreadsheets</code> ekle.</p>
+          <div class="row"><a class="btn small" href="https://console.cloud.google.com/auth/clients" target="_blank" rel="noopener noreferrer">Clients sayfası ↗</a></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="card guide-card">
+      <div class="gpart"><span class="gtag">B</span><div><h2>Bu uygulamada bağla</h2><p class="hint">Her bilgisayarda bir kez. Bağlantı bu Windows hesabına bağlı korumalı saklanır; başka bilgisayara taşınmaz.</p></div></div>
+
+      <article class="gstep" data-gstate="sheet">
+        <span class="gnum">6</span>
+        <div class="gbody">
+          <h3>Hedef dosyayı seç ve kaydet</h3>
+          <ol>
+            <li>Google Sheets dosyasını tarayıcıda aç. Sağ üstteki <b>Paylaş</b>’tan bağlanacak hesabın <b>Düzenleyen</b> olduğunu kontrol et.</li>
+            <li>Adres çubuğundaki bağlantıyı kopyala.</li>
+            <li><b>Ayarlar → Çıktı hedefi → Google Sheets</b> seç, bağlantıyı yapıştır, <b>Ayarları kaydet</b>.</li>
+          </ol>
+          <p class="gstate" data-gstate-text="sheet"></p>
+        </div>
+      </article>
+
+      <article class="gstep" data-gstate="client">
+        <span class="gnum">7</span>
+        <div class="gbody">
+          <h3>JSON dosyasını seç</h3>
+          <p>Kenar çubuğundaki <b>Google bağlantısı</b> ekranını aç. GA4 için daha önce seçtiğin JSON kayıtlıysa tekrar seçme. Değiştirmek için dosya alanından masaüstü OAuth JSON’unu seçip <b>İstemciyi kaydet</b>’e bas. Bu seçim bütün projeler için geçerlidir.</p>
+          <p class="gstate" data-gstate-text="client"></p>
+        </div>
+      </article>
+
+      <article class="gstep" data-gstate="connect">
+        <span class="gnum">8</span>
+        <div class="gbody">
+          <h3>Google hesabını bağla</h3>
+          <p><b>Google bağlantısı → Google hesabımla bağlan</b>’a bas. GA4 ve Sheets için tek hesap kullanılır. Sırayla şunları görürsün:</p>
+          <ol>
+            <li><b>Hesap seç:</b> Adım 6’daki dosyaya erişimi olan hesabı seç.</li>
+            <li><b>“Google bu uygulamayı doğrulamadı”</b> (yalnız External): kendi oluşturduğun uygulama olduğu için normaldir. <b>Gelişmiş</b> → <b>Netmera Otomasyonu’na git (güvenli değil)</b>.</li>
+            <li><b>İzin listesi:</b> <b>Google E-Tablolar</b> izninin (e-tablolarını görme, düzenleme, oluşturma ve silme) kutusunu işaretle, <b>Devam</b>’a bas. Kutuyu boş bırakırsan bağlantı kurulmaz.</li>
+            <li><b>“Google yanıtı alındı”</b> sayfası: sekmeyi kapat, uygulamaya dön. 3 dakika içinde tamamlamazsan yeniden dene.</li>
+          </ol>
+          <p class="gstate" data-gstate-text="connect"></p>
+        </div>
+      </article>
+
+      <article class="gstep" data-gstate="check">
+        <span class="gnum">9</span>
+        <div class="gbody">
+          <h3>Bağlantıyı doğrula</h3>
+          <p>Ayarlar’a dönüp <b>Dosya erişimini doğrula (yazmaz)</b>’a bas. Ayarları kaydedince de kontrol edilir. Dosyanın adını ve sayfalarını okur, hücre eşlemendeki sayfa adı dosyada yoksa söyler. Hiçbir şey yazmaz.</p>
+          <p class="gstate" data-gstate-text="check"></p>
+        </div>
+      </article>
+
+      <article class="gstep">
+        <span class="gnum">10</span>
+        <div class="gbody">
+          <h3>Hücreleri eşle, yazmadan dene, sonra yaz</h3>
+          <ol>
+            <li><b>Ayarlar → İş → hedef hücre</b>’de her işi sayfa adı ve hücreye bağla, kaydet.</li>
+            <li><b>Çalıştır → Test et (çıktıya yazma)</b> ile Netmera sayılarını al.</li>
+            <li><b>Ayarlar → Son testle önizle (yazmaz)</b> ile hangi hücreye ne yazılacağını gör.</li>
+            <li>İlk gerçek yazımı raporun bir <b>kopyasında</b> <b>Çalıştır ve Sheets’e yaz</b> ile yap. Doğruysa zamanlamayı kur.</li>
+          </ol>
+        </div>
+      </article>
+      <div class="row"><button type="button" class="btn primary" id="goGoogleSettingsBtn">Google bağlantısına git</button></div>
+    </div>
+
+    <div class="card guide-card">
+      <h2>Sorun mu var? Gördüğün mesaja göre</h2>
+      <p class="hint">Uygulama veya Google ne yazıyorsa onu bul.</p>
+      <details><summary>“Erişim engellendi … 403 org_internal”</summary><p class="hint">Adım 3’te <b>Internal</b> seçilmiş ama bağlandığın hesap o kuruluşun dışında. JSON’u yeniden indirmek çözmez. Şirket hesabınla bağlan; kişisel hesap kullanman gerekiyorsa ve yetkin varsa kitleyi <b>External</b> yapıp Adım 4’ü uygula.</p></details>
+      <details><summary>“Error 403: access_denied” veya “Google izni verilmedi”</summary><p class="hint">Uygulama External + Testing durumunda ve hesabın <b>Test users</b> listesinde değil (Adım 4) ya da izin ekranında İptal seçildi. Hesabı ekleyip yeniden bağlan.</p></details>
+      <details><summary>“Google bu uygulamayı doğrulamadı”</summary><p class="hint">External uygulamalarda normaldir; uygulama senin Google Cloud projen. <b>Gelişmiş</b> → <b>… sayfasına git</b> ile devam et. Şirket bu uyarıyı kabul etmiyorsa Internal kullan.</p></details>
+      <details><summary>“Google Sheets izni verilmedi”</summary><p class="hint">İzin ekranında Sheets kutusu işaretlenmeden devam edildi. Yeniden bağlan ve kutuyu işaretle (Adım 8).</p></details>
+      <details><summary>“Google Sheets API bu Google Cloud projesinde kapalı”</summary><p class="hint">Adım 2’yi, JSON’u indirdiğin projede yap. Açtıktan sonra birkaç dakika bekle ve <b>Bağlantıyı doğrula</b>’ya yeniden bas.</p></details>
+      <details><summary>“Google erişimi reddedildi” veya “dosya bulunamadı”</summary><p class="hint">Bağlı hesabın dosyada Düzenleyen yetkisi yok ya da bağlantı yanlış. Dosyayı o hesapla paylaş veya doğru hesabı bağla. Yetki doğruysa engel şirket politikasından gelebilir; Google yöneticine danış.</p></details>
+      <details><summary>“Google bağlantısının süresi doldu”</summary><p class="hint">Testing durumundaki External uygulamada 7 günde bir olur ya da izin Google hesabından kaldırılmıştır. <b>Google ile bağlan</b> ile yenile. Kalıcı çözüm için Adım 4’teki notu oku.</p></details>
+      <details><summary>“Desktop app türünde OAuth istemci JSON dosyasını seçin”</summary><p class="hint">Seçilen dosya Web application, API key veya service account dosyası. Adım 5’te türü <b>Desktop app</b> seçerek yeni istemci oluştur.</p></details>
+      <details><summary>“Yöneticiniz bu uygulamaya erişimi engelledi”</summary><p class="hint">Şirketin Google Workspace politikası üçüncü taraf uygulamaları kapatmış. Uygulama bunu aşamaz; Google yöneticine danış veya yerel Excel hedefini kullan.</p></details>
+      <details><summary>Bilgilerim nerede saklanıyor? Nasıl kaldırırım?</summary><p class="hint">JSON içeriği ve Google erişimi <code>%LOCALAPPDATA%\NetmeraOtomasyon\profiller\&lt;proje&gt;\google-sheets-korumali.json</code> içinde Windows korumasıyla (DPAPI) saklanır; düz metin yazılmaz. <b>Bu bilgisayardaki bağlantıyı temizle</b> bu kaydı siler. Google hesabındaki izni ayrıca <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener noreferrer">Google hesabı → Bağlantılar</a> sayfasından kaldırabilirsin.</p></details>
+    </div>
+  </section>
+  </div>
+</main>
+
+<dialog id="jobDlg">
+  <div class="dlg-h"><b id="jobDlgTitle">İş</b><button class="btn small" data-close>✕</button></div>
+  <div class="dlg-b">
+    <div class="types" id="typeBtns"></div>
+    <label class="f">İş adı <small>Excel'de sütun başlığı olur</small><input type="text" id="jLabel" maxlength="80"></label>
+    <div id="segmentRunFields" class="hidden">
+      <div class="grid2" style="margin-top:12px">
+        <label class="f">Segment adı <small>Targeting › Segments listesindeki ad, birebir</small><input type="text" id="jSegName" maxlength="100" placeholder="Ör. demo-segment-2"></label>
+        <div class="f"><span>Kurallar</span><span class="row"><button class="btn small" type="button" id="segRulesBtn">Bu segmentin kurallarını al</button></span><small>Kuralları Netmera'daki segmentten okur ve buraya yazar; segment değiştirilmez.</small></div>
+        <label class="f">Kaç saniyede bir yenilensin?<input type="number" id="jPoll" min="20" max="600" value="60"><small>20–600 saniye. Liste yenilenir; "Calculating" bitince Users sayısı alınır.</small></label>
+        <label class="f">En çok kaç dakika beklensin?<input type="number" id="jMaxWait" min="5" max="240" value="60"><small>Süre dolarsa sayı yazılmaz, hata gösterilir.</small></label>
+      </div>
+      <div class="hint" style="margin-top:8px">Akış: segmenti ara → Edit → tüm <b>between dates</b> kutularına çalışmanın tarihini yaz → <b>Save</b> → listede Calculating bitene dek yenile → Users sayısını al → sonraki tarihe geç. Çalıştır'da tarih aralığı + "Her günü ayrı çek" seçersen her gün sırayla hesaplanır. <span class="tag exp">deneysel · segmenti değiştirir</span></div>
+      <label class="row" style="gap:8px;margin-top:10px"><input type="checkbox" id="jRebuild"> Segmentin kurallarını da bu tanımla yeniden kur <span class="hint" style="margin:0">(kapalıyken yalnız tarihler değişir, kurallara dokunulmaz)</span></label>
+      <label class="row" style="gap:8px;margin-top:6px"><input type="checkbox" id="jCreate"> Bu adda segment yoksa oluştur (Create Segment)</label>
+      <label class="row" style="gap:8px;margin-top:6px"><input type="checkbox" id="jSplitDays"> Her günü ayrı hesapla <span class="hint" style="margin:0">(aralıktaki her gün için tarih yazılır, kaydedilir, sayı alınır, sonraki güne geçilir; yazarken “Belirli hücrelere yaz” gerekir)</span></label>
+    </div>
+    <div id="formulaFields" class="hidden">
+      <label class="f" style="margin-top:12px">Formül <small>Ör. <code>(A + B) / 2</code> · yalnız + − × ÷ ve parantez; ondalık için nokta (2.5)</small><input type="text" id="jExpr" maxlength="200" placeholder="(A + B) / 2"></label>
+      <div class="section-title"><h3>Değişkenler</h3><span class="tag">A, B, C…</span></div>
+      <div class="hint">Her değişken bir işin sonucu ya da bir tablo hücresidir. Tablo hücresi yerel Excel'den veya Google Sheet'ten okunur; tarih satırı/başlığı bulunurken hesaplamanın günü kullanılır.</div>
+      <div id="varRows"></div>
+      <div class="row"><button class="btn small" type="button" id="addVarJob">+ İş sonucu</button><button class="btn small" type="button" id="addVarCell">+ Tablo hücresi</button></div>
+      <div class="hint" style="margin-top:8px">Sonuç yuvarlanmaz (30 ÷ 4 = 7,5). Okunan hücre boşsa veya sayı değilse hesap yapılmaz ve hücreye yazılmaz. Sonucu yazdırmak için Ayarlar → hücre eşlemesinde bu işi seç; işler okunduktan sonra hesaplanır.</div>
+    </div>
+    <div id="periodBox" class="grid2" style="margin-top:12px">
+      <label class="f">Tarih aralığı<select id="jPeriod"></select></label>
+      <label class="f" id="jDaysWrap">Kaç gün? <small>Dün dahil, bugün hariç</small><input type="number" id="jDays" min="1" max="90" value="7"></label>
+      <div class="f hidden" id="jCustomWrap"><b style="font-size:13px">Tarihler</b><span class="row" style="flex-wrap:nowrap"><input type="date" id="jStart"> – <input type="date" id="jEnd"></span><small style="color:var(--muted);font-weight:400">Sabit aralık: her çalışmada aynı günler okunur.</small></div>
+    </div>
+    <div id="eventFields">
+      <div class="grid2" style="margin-top:12px">
+        <label class="f">Event adı <small>Paneldeki listede görünen ad, birebir</small><input type="text" id="jEvent" list="eventList"></label>
+        <label class="f"><span>Metrik <button type="button" class="info-btn" data-info="metric" aria-label="Metrik hakkında bilgi">i</button></span><select id="jMetric"></select></label>
+        <label class="f"><span>Hedef kitle <button type="button" class="info-btn" data-info="audience" aria-label="Hedef kitle hakkında bilgi">i</button></span><select id="jAudience"></select></label>
+        <label class="f hidden" id="jAudienceNameWrap">Hedef Tag adı <small>Paneldeki etiket adı, birebir; tek etiket</small><input type="text" id="jAudienceName" maxlength="150" placeholder="Örn. Sentetik Etiket"></label>
+      </div>
+      <h3>Event property filtreleri</h3>
+      <div class="hint">Örnek: Content Id · Contains · DemoCampaign. "In" ile birden çok değer: her satıra bir değer.</div>
+      <div id="filterRows"></div>
+      <button class="btn small" id="addFilterBtn" type="button">+ Filtre ekle</button>
+      <h3>Hangi sütun(lar) okunsun?</h3>
+      <div class="checks" id="jColumns"></div>
+      <div class="hint">Her seçili sütun Excel'de ayrı sütun olur. Platform sayıları toplanmaz; panelde ne yazıyorsa o okunur.</div>
+      <label class="row" style="gap:8px;margin-top:10px"><input type="checkbox" id="jEmptyZero"> Panel "No valid record found" derse 0 yaz <span class="hint" style="margin:0">(kapalıyken HATA yazılır; önce panelde gerçekten sıfır olduğunu doğrula)</span></label>
+    </div>
+    <div id="peopleFields" class="hidden">
+      <div class="section-title"><h3 id="rulesTitle">People kuralları</h3><button type="button" class="info-btn" data-info="people" aria-label="People kuralları hakkında bilgi">i</button><span class="tag">Sırayla uygulanır</span></div>
+      <div class="hint" style="margin-top:10px">Targeting › People'da elle yaptığın gibi: kuralları ve grupları <b>sırayla</b> ekle. Alan ve değer paneldeki yazımla aynı olmalı (ör. <code>App Version</code> · <code>Android 1.2.3</code>, <code>App Installation</code> · <code>Installed</code>, <code>Platform</code> · <code>iOS</code>).</div>
+      <div id="peopleItems"></div>
+      <div class="row"><button class="btn small" type="button" id="addPRule">+ Kural</button><button class="btn small" type="button" id="addPGroup">+ Grup</button></div>
+      <div class="grid2" style="margin-top:12px">
+        <label class="f"><span>Üst düzey bağlaç <button type="button" class="info-btn" data-info="groups" aria-label="AND, OR ve gruplar hakkında bilgi">i</button></span><select id="jConnector"><option>AND</option><option>OR</option></select><small>Farklı bağlaç gereken kuralları bir gruba koyabilirsin.</small></label>
+        <label class="f" id="jCountFromWrap">Sayı nereden okunsun?<select id="jCountFrom"></select><small>"Alttaki toplam": Show results sonrası sayfanın altındaki sayı. Kişi satırları okunmaz.</small></label>
+      </div>
+    </div>
+    <div id="namedFields" class="hidden">
+      <label class="f" style="margin-top:12px"><span id="namedLabel">Ad</span> <small>Paneldeki listede görünen ad, birebir</small><input type="text" id="jName"></label>
+      <div class="hint">Liste ekranındaki kullanıcı sayısını okur. Segmentlerde sayı Netmera'nın son hesapladığı değerdir; güncelleme zamanı not olarak yazılır. <span class="tag exp">deneysel</span></div>
+    </div>
+    <div class="preview" id="jPreview"></div>
+    <div class="err-text" id="jErr"></div>
+  </div>
+  <div class="dlg-f">
+    <label class="row" style="gap:8px"><input type="checkbox" id="jEnabled" checked> Etkin</label>
+    <div class="row"><button class="btn" data-close>Vazgeç</button><button class="btn primary" id="jobSaveBtn">Kaydet</button></div>
+  </div>
+</dialog>
+
+<dialog id="transferJobsDlg" aria-labelledby="transferJobsTitle">
+  <div class="dlg-h"><b id="transferJobsTitle">Başka projeye aktar</b><button class="btn small" data-close>✕</button></div>
+  <div class="dlg-b">
+    <p id="transferJobsNames" class="hint"></p>
+    <div class="grid2">
+      <label class="f">Hedef proje<select id="transferJobsTarget"></select></label>
+      <label class="f">İşlem<select id="transferJobsMode"><option value="copy">Kopyala · kaynakta kalsın</option><option value="move">Taşı · kaynaktan kaldırılsın</option></select></label>
+    </div>
+    <p class="hint">İşler hedefe <b>kapalı</b> eklenir. Hedef uygulamayı ve iş ayarlarını kontrol edip etkinleştir. Hücre eşlemeleri ve GA4 Sheets çıktı sekmeleri aktarılmaz; hedef projede yeniden seçilir. Hücre okuyan hesaplamalarda “bu projenin çıktısı” hedef projenin dosyası anlamına gelir. Hesaplama işlerini, bağlı oldukları işlerle birlikte seç.</p>
+    <div class="err-text" id="transferJobsErr" role="alert"></div>
+  </div>
+  <div class="dlg-f"><span></span><div class="row"><button class="btn" data-close>Vazgeç</button><button class="btn primary" type="button" id="transferJobsSaveBtn">Kopyala</button></div></div>
+</dialog>
+
+<dialog id="profileDlg">
+  <div class="dlg-h"><b>Yeni proje</b><button class="btn small" data-close>✕</button></div>
+  <div class="dlg-b">
+    <div class="hint">Başka bir Netmera uygulaması veya ayrı bir rapor seti için. Varsayılan 6 iş ile başlar; sonra değiştirirsin.</div>
+    <div class="grid2">
+      <label class="f">Proje adı<input type="text" id="npName" placeholder="ör. DemoCompany Web günlük"></label>
+      <label class="f">Veri kaynağı<select id="npSource"></select></label>
+    </div>
+    <div class="err-text" id="npErr"></div>
+  </div>
+  <div class="dlg-f"><span></span><div class="row"><button class="btn" data-close>Vazgeç</button><button class="btn primary" id="npSaveBtn">Oluştur</button></div></div>
+</dialog>
+
+<dialog id="exportProjectsDlg" aria-labelledby="exportProjectsTitle">
+  <div class="dlg-h"><b id="exportProjectsTitle">Projeleri dışa aktar</b><button class="btn small" data-close aria-label="Kapat">✕</button></div>
+  <div class="dlg-b">
+    <p class="hint">İşler, filtreler, Excel/Google Sheets dosya ve sekme bağlantıları, hücre eşlemeleri, formüller, GA4 mülk eşlemeleri ve zamanlama ayarları birlikte kaydedilir. Hedef bilgisayarda Google hesabına yeniden giriş yapılır. Şifre ve oturumlar aktarılmaz.</p>
+    <label class="row"><input type="checkbox" id="exportProjectsAll" checked> Tümünü seç</label>
+    <div id="exportProjectsList" class="project-transfer-list"></div>
+    <div id="exportProjectsErr" class="err-text" role="alert"></div>
+  </div>
+  <div class="dlg-f"><span id="exportProjectsCount" class="hint"></span><div class="row"><button class="btn" data-close>Vazgeç</button><button class="btn primary" type="button" id="exportProjectsSaveBtn">JSON dosyasını indir</button></div></div>
+</dialog>
+
+<dialog id="importProjectsDlg" aria-labelledby="importProjectsTitle">
+  <div class="dlg-h"><b id="importProjectsTitle">Projeleri içe aktar</b><button class="btn small" data-close aria-label="Kapat">✕</button></div>
+  <div class="dlg-b">
+    <label class="f">Proje JSON dosyası<input type="file" id="projectImportFile" accept=".json,application/json"><small>En çok 5 MB ve 100 proje. Önce dosya kontrol edilir; seçtiğin projeler aşağıda gösterilir.</small></label>
+    <p class="hint" style="margin-top:12px">Her proje yeni kopya olarak eklenir; aynı ad varsa numara eklenir. Mevcut projelerin üzerine yazılmaz. Dosya yolları ve çıktı eşlemeleri korunur. Google/GA4 bağlantılarını ve mülk eşlemelerini bu bilgisayarda kontrol et. Zamanlama otomatik kurulmaz.</p>
+    <div id="projectImportPreview" class="hidden">
+      <p id="importConnectionsInfo" class="hint"></p>
+      <label class="row"><input type="checkbox" id="importProjectsAll" checked> Tümünü seç</label>
+      <div id="importProjectsList" class="project-transfer-list"></div>
+      <label class="row"><input type="checkbox" id="importProjectsKeepEnabled"> İşlerin etkin/kapalı durumunu koru</label>
+      <p class="hint">Bu seçenek kapalıysa işler kapalı olarak eklenir; kontrol ettikten sonra İşler ekranından etkinleştirebilirsin.</p>
+    </div>
+    <div id="importProjectsErr" class="err-text" role="alert"></div>
+  </div>
+  <div class="dlg-f"><span id="importProjectsCount" class="hint" role="status"></span><div class="row"><button class="btn" data-close>Vazgeç</button><button class="btn primary" type="button" id="importProjectsSaveBtn" disabled>Seçilen projeleri içe al</button></div></div>
+</dialog>
+
+<dialog id="diagDlg">
+  <div class="dlg-h"><b>Teşhis kayıtları</b><button class="btn small" data-close>✕</button></div>
+  <div class="dlg-b">
+    <div class="hint">Bir adım hata verdiğinde ekrandaki düğme, kutu ve tablo başlığı adları kaydedilir. Sayılar <code>#</code> ile, e-postalar gizlenir; kişi listesi veya tablo değeri yoktur. Geliştirmeye iletmeden önce göz at.</div>
+    <textarea id="diagText" readonly style="min-height:320px;font:12px/1.4 Consolas,monospace"></textarea>
+  </div>
+  <div class="dlg-f"><span class="hint" id="diagInfo"></span><div class="row"><button class="btn" data-close>Kapat</button><button class="btn primary" id="diagCopyBtn">Kopyala</button></div></div>
+</dialog>
+
+<dialog id="infoDlg" aria-labelledby="infoTitle" aria-describedby="infoBody">
+  <div class="dlg-h"><b id="infoTitle">Bilgi</b><button type="button" class="btn small" data-close aria-label="Bilgiyi kapat">✕</button></div>
+  <div class="dlg-b" id="infoBody"></div>
+  <div class="dlg-f" style="justify-content:flex-end"><button type="button" class="btn primary" data-close>Anladım</button></div>
+</dialog>
+
+<datalist id="eventList"></datalist>
+<datalist id="propList"></datalist>
+<datalist id="opList"></datalist>
+<datalist id="verOpList"></datalist>
+<datalist id="peopleFieldList"></datalist>
+<datalist id="peopleValueList"></datalist>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const TOKEN = document.querySelector('meta[name=token]').content;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let S = null, C = null, editing = null, pollTimer = null, lastLines = '', view = 'projects';
+let projectImportBundle = null, projectImportRevision = 0, projectImportBusy = false;
+const DAY_TR = {MON:'Pzt',TUE:'Sal',WED:'Çar',THU:'Per',FRI:'Cum',SAT:'Cmt',SUN:'Paz'};
+const TYPE_HINT = {event:'Olay / tekil kullanıcı / oturuma göre', people:'Kurallara/gruplara göre kişi sayısı', tag:'Etiketteki kullanıcı sayısı', segment:'Segmentteki kullanıcı sayısı (olduğu gibi)', segment_run:'Tarihleri değiştir, kaydet, hesaplanınca sayıyı al', formula:'İş sonuçları ve tablo hücreleriyle + − × ÷'};
+const TYPE_NAME = {event:'Event Insight', people:'People', tag:'Tag sayısı', segment:'Segment sayısı', segment_run:'Segment hesapla', formula:'Hesaplama'};
+const DATED = ['event', 'segment_run'];
+
+async function api(path, body, options = {}){
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  if (options.signal?.aborted) controller.abort();
+  options.signal?.addEventListener('abort', abort, {once:true});
+  const timer = setTimeout(abort, options.timeout || (path.includes('pick-file') ? 600000 : body ? 30000 : 15000));
+  try {
+  const r = await fetch(path, {signal: controller.signal, method: body ? 'POST' : 'GET', headers: {'X-Token': TOKEN, 'Content-Type': 'application/json'}, body: body ? JSON.stringify(body) : undefined});
+  let j = {}; try { j = await r.json(); } catch(e) { if (e.name === 'AbortError') throw e; throw new Error('Uygulamanın yanıtı okunamadı. Sayfayı yenileyin.'); }
+  // Sayfa yeni sürümden, sunucu eski siyah pencereden geliyorsa yeni düğmeler 'Bilinmeyen istek' alır.
+  if (!r.ok) throw new Error(j.error === 'Bilinmeyen istek.' ? 'Açık siyah pencere eski sürüm. O pencereyi kapatıp NetmeraOtomasyonu.cmd ile yeniden aç.' : j.error || 'İstek başarısız.');
+  return j;
+  } catch(e) {
+    if (e.name === 'AbortError' && !options.signal?.aborted) throw new Error(body ? 'Kayıt yanıtı gecikti. İşlem tamamlanmış olabilir; tekrar kaydetmeden önce sayfayı yenileyin.' : 'Uygulama 15 saniyede yanıt vermedi. Tekrar deneyin.');
+    throw e;
+  } finally { clearTimeout(timer); options.signal?.removeEventListener('abort', abort); }
+}
+function toast(msg, err){ const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : ''); clearTimeout(t._h); t._h = setTimeout(() => t.className = 'toast', err ? 6000 : 2600); }
+async function guard(fn){ try { await fn(); } catch(e) { toast(e.message, true); } }
+function savedProfile(){ try { return localStorage.getItem('netmera.profile'); } catch(e) { return null; } }
+function rememberProfile(id){ try { localStorage.setItem('netmera.profile', id); } catch(e) {} }
+
+let loadSequence = 0, loadController = null, requestedProfile = null, editEpoch = 0;
+let settingsDrawn = false, activeTab = 'jobs', resultsDirty = false, toggleQueue = Promise.resolve();
+const pendingToggles = new Map();
+async function load(profileId, nextView){
+  const sequence = ++loadSequence, epoch = editEpoch;
+  requestedProfile = profileId;
+  loadController?.abort(); loadController = new AbortController();
+  const controller = loadController;
+  document.querySelector('#nm')?.setAttribute('aria-busy', 'true');
+  const feedback = document.querySelector('#navFeedback');
+  if (feedback) { feedback.hidden = false; feedback.textContent = 'Proje yükleniyor…'; }
+  $('#projectView').inert = true;
+  try {
+  const state = await api('/api/state' + (profileId ? '?profile=' + encodeURIComponent(profileId) : ''), undefined, {signal:controller.signal});
+  if (sequence !== loadSequence || epoch !== editEpoch) return false;
+  S = state; requestedProfile = S.profile.id;
+  for (const job of S.profile.jobs) { const key = S.profile.id + ':' + job.id; if (pendingToggles.has(key)) job.enabled = pendingToggles.get(key); }
+  settingsDrawn = false;
+  resultsDirty = false;
+  C = S.constants;
+  if (nextView) view = nextView;
+  if (view === 'project') rememberProfile(S.profile.id);
+  render();
+  return true;
+  } catch(e) {
+    if (controller.signal.aborted) return false;
+    if (feedback) { feedback.textContent = e.message + ' '; const retry = document.createElement('button'); retry.className = 'btn small'; retry.textContent = 'Tekrar dene'; retry.onclick = () => guard(() => load(profileId, nextView)); feedback.append(retry); }
+    throw e;
+  }
+  finally {
+    if (sequence === loadSequence) {
+      document.querySelector('#nm')?.removeAttribute('aria-busy'); $('#projectView').inert = false;
+      if (feedback && !feedback.querySelector('button')) feedback.hidden = true;
+    }
+  }
+}
+function showView(){
+  const proj = view === 'project';
+  $('#projectsView').classList.toggle('hidden', proj);
+  $('#projectView').classList.toggle('hidden', !proj);
+  ['#backBtn', '#projTitle', '#sourcePill'].forEach(s => $(s).classList.toggle('hidden', !proj));
+}
+function renderProjects(){
+  $('#projectCards').innerHTML = S.projects.map(p => {
+    const last = p.last && p.last.planned_at
+      ? `Son çalışma: ${new Date(p.last.planned_at).toLocaleString('tr-TR', {dateStyle: 'short', timeStyle: 'short'})} · ${p.last.ok} OK${p.last.failed ? ', ' + p.last.failed + ' hata' : ''}${p.last.write ? '' : ' (test)'}`
+      : 'Henüz çalışmadı';
+    const sched = p.times.length ? `Saatler: ${p.times.join(', ')} · ${p.days.map(d => DAY_TR[d]).join(' ')}` : 'Zamanlama yok';
+    return `<div class="pcard">
+      <div class="row" style="justify-content:space-between;gap:6px"><h3>${esc(p.name)}</h3><span class="pill ${p.source === 'demo' ? 'demo' : 'ok'}">${p.source === 'demo' ? 'DEMO' : 'prod'}</span></div>
+      <div class="meta"><span>${p.source === 'demo' ? 'Sahte veri' : esc(p.app || 'Netmera uygulaması girilmedi')}</span>
+        <span>${p.enabled}/${p.jobs} iş etkin</span><span>${esc(sched)}</span><span>${esc(last)}</span>
+        ${p.ready ? '' : '<span style="color:var(--warn)">Ayarlar eksik</span>'}</div>
+      <div class="acts"><button class="btn small primary" data-open-project="${esc(p.id)}">Aç</button><button class="btn small" data-export-project="${esc(p.id)}">Dışa aktar</button><button class="btn small" data-test-project="${esc(p.id)}">Test et</button><button class="btn small danger" data-delete-project="${esc(p.id)}" data-name="${esc(p.name)}">Sil</button></div>
+    </div>`;
+  }).join('') + S.broken_projects.map(b => `<div class="pcard" style="border-color:var(--err)">
+      <h3>${esc(b.name)}</h3><div class="meta"><span style="color:var(--err)">Bu proje açılamadı:</span><span>${esc(b.error)}</span>
+      <span>Ayar dosyası: <code>${esc(C.data_dir + '\\profiller\\' + b.id + '\\profil.json')}</code></span></div>
+      <div class="acts"><button class="btn small danger" data-delete-project="${esc(b.id)}" data-name="${esc(b.name)}">Sil</button></div></div>`).join('')
+    || '<div class="hint">Proje yok. "+ Yeni proje" ile başla.</div>';
+}
+async function deleteProject(id, name){
+  if (!confirm(`"${name}" projesi, iş listesi, tarayıcı oturumu ve zamanlanmış görevi silinsin mi? (Excel dosyası silinmez.)`)) return;
+  await api('/api/profile/delete', {profile_id: id});
+  const next = S.projects.find(p => p.id !== id);
+  await load(next ? next.id : null, 'projects'); toast('Proje silindi.');
+}
+$('#projectCards').addEventListener('click', e => guard(async () => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.openProject) { const route = location.hash; if (await load(b.dataset.openProject, 'project') && location.hash === route) switchTab('jobs'); }
+  if (b.dataset.testProject) { const route = location.hash; if (await load(b.dataset.testProject, 'project') && location.hash === route) { switchTab('run'); await startRun({write: false}); } }
+  if (b.dataset.deleteProject) await deleteProject(b.dataset.deleteProject, b.dataset.name);
+  if (b.dataset.exportProject) { b.disabled = true; try { await downloadProjects([b.dataset.exportProject]); } finally { b.disabled = false; } }
+}));
+$('#backBtn').onclick = () => guard(() => load(S.profile.id, 'projects'));
+
+// ---- Proje JSON aktarımı ----
+function projectTransferSelection(list, all, count, save, available){
+  const boxes = $$(list + ' input[type=checkbox]'), selected = boxes.filter(b => b.checked);
+  $(all).checked = boxes.length > 0 && boxes.length === selected.length;
+  $(all).indeterminate = selected.length > 0 && selected.length < boxes.length;
+  $(count).textContent = `${selected.length} proje seçili`;
+  $(save).disabled = !available || selected.length === 0;
+  return selected.map(b => b.value);
+}
+function exportProjectSelection(){ return projectTransferSelection('#exportProjectsList', '#exportProjectsAll', '#exportProjectsCount', '#exportProjectsSaveBtn', true); }
+function importProjectSelection(){ return projectTransferSelection('#importProjectsList', '#importProjectsAll', '#importProjectsCount', '#importProjectsSaveBtn', !!projectImportBundle && !projectImportBusy); }
+function setProjectImportBusy(busy){
+  projectImportBusy = busy;
+  $$('#importProjectsDlg input, #importProjectsDlg [data-close]').forEach(el => el.disabled = busy);
+  importProjectSelection();
+  if (busy) $('#importProjectsCount').textContent = 'Projeler içe alınıyor…';
+}
+async function downloadProjects(ids){
+  const r = await api('/api/projects/export', {profile_ids: ids});
+  const blob = new Blob([JSON.stringify(r.bundle, null, 2)], {type: 'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob), link = document.createElement('a');
+  link.href = url; link.download = r.filename; document.body.appendChild(link); link.click(); link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(`${r.bundle.projects.length} proje bütün ayarlarıyla dışa aktarıldı. ${(r.notes || []).join(' ')}`);
+}
+$('#exportProjectsBtn').onclick = () => {
+  $('#exportProjectsErr').textContent = '';
+  $('#exportProjectsList').innerHTML = S.projects.map(p => `<label class="project-transfer-item"><input type="checkbox" value="${esc(p.id)}" checked><span class="project-transfer-info"><b>${esc(p.name)}</b><small>${p.jobs} iş · ${p.source === 'demo' ? 'Demo' : 'Netmera / GA4'}</small></span></label>`).join('');
+  exportProjectSelection(); $('#exportProjectsDlg').showModal();
+};
+$('#exportProjectsList').onchange = exportProjectSelection;
+$('#exportProjectsAll').onchange = e => { $$('#exportProjectsList input').forEach(b => b.checked = e.target.checked); exportProjectSelection(); };
+$('#exportProjectsSaveBtn').onclick = async () => {
+  const button = $('#exportProjectsSaveBtn'), ids = exportProjectSelection();
+  if (!ids.length) return;
+  button.disabled = true;
+  try { await downloadProjects(ids); $('#exportProjectsDlg').close(); }
+  catch(e) { $('#exportProjectsErr').textContent = e.message; }
+  finally { exportProjectSelection(); }
+};
+$('#importProjectsBtn').onclick = () => {
+  projectImportRevision++; projectImportBundle = null; projectImportBusy = false;
+  $('#projectImportFile').value = ''; $('#projectImportFile').disabled = false;
+  $('#importProjectsErr').textContent = ''; $('#importProjectsList').replaceChildren();
+  $('#projectImportPreview').classList.add('hidden'); $('#importProjectsKeepEnabled').checked = false;
+  importProjectSelection(); $('#importProjectsDlg').showModal();
+};
+$('#projectImportFile').onchange = async () => {
+  const revision = ++projectImportRevision, file = $('#projectImportFile').files[0];
+  projectImportBundle = null; $('#importProjectsErr').textContent = '';
+  $('#importProjectsList').replaceChildren(); $('#projectImportPreview').classList.add('hidden'); importProjectSelection();
+  if (!file) return;
+  $('#importProjectsCount').textContent = 'Dosya kontrol ediliyor…';
+  try {
+    if (file.size > C.project_transfer_max_bytes) throw new Error('Proje dosyası en çok 5 MB olabilir.');
+    let bundle;
+    try { bundle = JSON.parse(new TextDecoder('utf-8', {fatal: true}).decode(await file.arrayBuffer()).replace(/^\uFEFF/, '')); }
+    catch(e) { throw new Error('JSON dosyası okunamadı; uygulamadan dışa aktarılan dosyayı seç.'); }
+    const r = await api('/api/projects/import-preview', {bundle});
+    if (revision !== projectImportRevision || !$('#importProjectsDlg').open) return;
+    projectImportBundle = bundle;
+    $('#importConnectionsInfo').textContent = `${r.connections?.ga4_properties || 0} GA4 mülk eşlemesi eklenecek. ${r.connections?.remapped ? 'Çakışan mülk adları yeni projeler için ayrılacak; mevcut projeler korunacak. ' : ''}Excel/Sheets bağlantıları ve sekme ayarları korunur; Google hesabına bu bilgisayarda giriş yapılır.`;
+    $('#importProjectsList').innerHTML = r.items.map(p => `<label class="project-transfer-item"><input type="checkbox" value="${p.index}" checked><span class="project-transfer-info"><b>${esc(p.name)}</b><small>Yeni kopya: ${esc(p.new_name)} · ${p.jobs} iş · ${p.mappings} eşleme${p.ga4 ? ' · ' + p.ga4 + ' GA4 işi' : ''}</small></span></label>`).join('');
+    $('#projectImportPreview').classList.remove('hidden'); importProjectSelection();
+  } catch(e) {
+    if (revision !== projectImportRevision || !$('#importProjectsDlg').open) return;
+    $('#importProjectsErr').textContent = e.message; $('#importProjectsCount').textContent = 'Dosya içe alınmadı.';
+  }
+};
+$('#importProjectsList').onchange = importProjectSelection;
+$('#importProjectsAll').onchange = e => { $$('#importProjectsList input').forEach(b => b.checked = e.target.checked); importProjectSelection(); };
+$('#importProjectsSaveBtn').onclick = async () => {
+  if (projectImportBusy || !projectImportBundle) return;
+  const indices = importProjectSelection().map(Number);
+  if (!indices.length) return;
+  setProjectImportBusy(true);
+  $('#importProjectsErr').textContent = '';
+  try {
+    const r = await api('/api/projects/import', {bundle: projectImportBundle, indices, keep_enabled: $('#importProjectsKeepEnabled').checked});
+    $('#importProjectsDlg').close(); projectImportBundle = null;
+    await load(S.profile.id, 'projects'); toast(r.message);
+  } catch(e) { $('#importProjectsErr').textContent = e.message; }
+  finally { setProjectImportBusy(false); }
+};
+$('#importProjectsDlg').addEventListener('close', () => { projectImportRevision++; });
+$('#importProjectsDlg').addEventListener('cancel', e => { if (projectImportBusy) e.preventDefault(); });
+
+function render(){
+  const p = S.profile;
+  renderProjects();
+  $('#projTitle').textContent = p.name;
+  const demo = p.source === 'demo';
+  $('#sourcePill').className = 'pill ' + (demo ? 'demo' : 'ok');
+  $('#sourcePill').textContent = demo ? 'DEMO · sahte veri' : 'Netmera prod';
+  $('#demoBanner').classList.toggle('hidden', !demo);
+  renderReady();
+  renderJobs();
+  renderOutputLabels();
+  if (activeTab === 'settings') renderSettings();
+  renderSchedule(); renderLastRun(S.last_run);
+  $('#loginHint').textContent = demo ? 'Demo projesi giriş gerektirmez.' :
+    (S.login_config?.ready ? 'Oturum biterse kayıtlı hesapla otomatik giriş denenir. Elle giriş için Giriş yap düğmesini kullanabilirsin.' : S.logged_in_once ? 'Bu proje için daha önce tarayıcı oturumu açıldı. Oturum düştüyse giriş yap veya Ayarlar’dan otomatik girişi tanımla.' : 'Bir kez giriş yap veya Ayarlar’dan otomatik giriş bilgilerini doldur.');
+  $('#loginBtn').disabled = demo;
+  $('#eventList').innerHTML = [...new Set([...S.catalog, ...C.known_events])].map(e => `<option value="${esc(e)}">`).join('');
+  $('#propList').innerHTML = C.known_properties.map(e => `<option value="${esc(e)}">`).join('');
+  $('#opList').innerHTML = C.operators.map(e => `<option value="${esc(e)}">`).join('');
+  $('#verOpList').innerHTML = C.version_operators.map(e => `<option value="${esc(e)}">`).join('');
+  $('#peopleFieldList').innerHTML = C.people_fields.map(e => `<option value="${esc(e)}">`).join('');
+  $('#catalogInfo').textContent = S.catalog_at ? `${S.catalog.length} event · ${new Date(S.catalog_at).toLocaleString('tr-TR')}` : 'Henüz alınmadı.';
+  $('#errorTable').innerHTML = Object.entries(C.errors).map(([k, v]) => `<tr><td><code>${esc(k)}</code></td><td>${esc(v)}</td></tr>`).join('');
+  showView();
+  $('#logPath').textContent = `${C.data_dir}\\profiller\\${p.id}\\gunluk\\`;
+}
+
+function renderReady(){
+  $('#readyBanner').classList.toggle('hidden', !S.readiness.length);
+  $('#readyList').innerHTML = S.readiness.map(r => `<li>${esc(r)}</li>`).join('');
+}
+
+let selectedJobs = new Set(), selectionProfile = null, transferSelection = null, bulkJobsBusy = false, jobsPage = 0;
+const JOB_PAGE_SIZE = 50;
+function renderJobSelection(){
+  const count = selectedJobs.size, total = S.profile.jobs.length;
+  $('#jobSelectionCount').textContent = `${count} iş seçili`;
+  $('#selectAllJobs').checked = total > 0 && count === total;
+  $('#selectAllJobs').indeterminate = count > 0 && count < total;
+  $('#selectAllJobs').disabled = !total || bulkJobsBusy;
+  ['enableSelectedJobsBtn','disableSelectedJobsBtn','deleteSelectedJobsBtn','transferJobsBtn'].forEach(id => {
+    $('#' + id).disabled = !count || bulkJobsBusy;
+  });
+  $('#deleteAllJobsBtn').disabled = !total || bulkJobsBusy;
+}
+function renderJobs(){
+  const p = S.profile;
+  if (!$('#jobTypeFilter').options.length) $('#jobTypeFilter').innerHTML = '<option value="">Bütün iş türleri</option>' + Object.entries(C.job_types).map(([k,v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join('');
+  if (selectionProfile !== p.id) { selectedJobs.clear(); selectionProfile = p.id; jobsPage = 0; $('#jobSearch').value = ''; $('#jobTypeFilter').value = ''; }
+  const ids = new Set(p.jobs.map(j=>j.id));
+  selectedJobs = new Set([...selectedJobs].filter(id => ids.has(id)));
+  renderJobSelection();
+  const query = $('#jobSearch').value.trim().toLocaleLowerCase('tr'), type = $('#jobTypeFilter').value;
+  const filtered = p.jobs.map((j,i)=>({j,i})).filter(({j})=>(!type || j.type === type) && (!query || (j.label + ' ' + (S.descriptions[j.id] || '')).toLocaleLowerCase('tr').includes(query)));
+  jobsPage = Math.max(0, Math.min(jobsPage, Math.ceil(filtered.length/JOB_PAGE_SIZE)-1));
+  const start = jobsPage * JOB_PAGE_SIZE;
+  $('#jobPageInfo').textContent = `${filtered.length ? start+1 : 0}–${Math.min(start+JOB_PAGE_SIZE,filtered.length)} / ${filtered.length} iş`;
+  $('#jobsPrevious').disabled = jobsPage === 0; $('#jobsNext').disabled = start+JOB_PAGE_SIZE >= filtered.length;
+  if (!p.jobs.length) { $('#jobList').innerHTML = '<div class="hint">Henüz iş yok. "+ Yeni iş" ile ekle.</div>'; return; }
+  if (!filtered.length) { $('#jobList').innerHTML = '<div class="hint">Aramaya uygun iş yok.</div>'; return; }
+  $('#jobList').innerHTML = filtered.slice(start,start+JOB_PAGE_SIZE).map(({j,i}) => `
+    <div class="job ${j.enabled ? '' : 'off'}">
+      <div class="row" style="gap:8px"><input type="checkbox" data-selectjob="${esc(j.id)}" aria-label="${esc(j.label)} işini seç" ${selectedJobs.has(j.id)?'checked':''}><label class="switch" title="Etkin / kapalı"><input type="checkbox" data-toggle="${i}" ${pendingToggles.has(S.profile.id + ':' + j.id) ? 'disabled' : ''} ${j.enabled ? 'checked' : ''}><span></span></label></div>
+      <div><div class="row" style="gap:8px"><span class="t">${esc(j.label)}</span><span class="tag">${esc(TYPE_NAME[j.type])}</span>${C.experimental.includes(j.type) ? '<span class="tag exp">deneysel</span>' : ''}</div>
+        <div class="d">${esc(S.descriptions[j.id] || '')}</div></div>
+      <div class="acts">
+        <button class="btn small" data-try="${i}" title="Yalnız bu işi çalıştır, Excel'e yazma">Dene</button>
+        <button class="btn small" data-edit="${i}">Düzenle</button>
+        <button class="btn small" data-dup="${i}" title="Kopyala">Kopyala</button>
+        <button class="btn small" data-transfer="${i}">Başka projeye…</button>
+        <button class="btn small" data-up="${i}" ${i === 0 ? 'disabled' : ''} title="Yukarı">↑</button>
+        <button class="btn small" data-down="${i}" ${i === p.jobs.length - 1 ? 'disabled' : ''} title="Aşağı">↓</button>
+        <button class="btn small danger" data-del="${i}">Sil</button>
+      </div>
+    </div>`).join('');
+}
+$('#jobSearch').oninput = $('#jobTypeFilter').onchange = () => { jobsPage = 0; renderJobs(); };
+$('#jobsPrevious').onclick = () => { jobsPage--; renderJobs(); };
+$('#jobsNext').onclick = () => { jobsPage++; renderJobs(); };
+
+$('#selectAllJobs').onchange = () => { selectedJobs = new Set($('#selectAllJobs').checked ? S.profile.jobs.map(j=>j.id) : []); renderJobs(); };
+async function manageSelectedJobs(action){
+  if (bulkJobsBusy) return;
+  const profile = S.profile, ids = [...selectedJobs];
+  if (!ids.length) return;
+  if (action === 'delete' && !confirm(`“${profile.name}” projesinde seçilen ${ids.length} iş silinsin mi?\n\n${profile.jobs.filter(j=>selectedJobs.has(j.id)).map(j=>j.label).join('\n')}\n\nSeçilen işlerin hücre eşlemeleri de kaldırılır. Rapor dosyaları ve sonuç geçmişi korunur.`)) return;
+  bulkJobsBusy = true; renderJobSelection();
+  try {
+    const result = await api('/api/jobs/bulk', {profile_id:profile.id, job_ids:ids, action, confirm:action === 'delete'});
+    if (requestedProfile === profile.id) await load(profile.id);
+    if (window.GA?.jobsChanged) await GA.jobsChanged();
+    toast(`${result.count} iş ${action === 'enable' ? 'açıldı' : action === 'disable' ? 'kapatıldı' : 'silindi'}.`);
+  } finally { bulkJobsBusy = false; renderJobSelection(); }
+}
+$('#enableSelectedJobsBtn').onclick = () => guard(() => manageSelectedJobs('enable'));
+$('#disableSelectedJobsBtn').onclick = () => guard(() => manageSelectedJobs('disable'));
+$('#deleteSelectedJobsBtn').onclick = () => guard(() => manageSelectedJobs('delete'));
+$('#transferJobsBtn').onclick = () => guard(() => openJobTransfer([...selectedJobs]));
+async function openJobTransfer(ids){
+  const state = await api('/api/state?profile=' + encodeURIComponent(S.profile.id));
+  const targets = state.projects.filter(p=>p.id !== S.profile.id);
+  transferSelection = {profile_id:S.profile.id, job_ids:ids};
+  $('#transferJobsNames').textContent = `${ids.length} iş: ` + S.profile.jobs.filter(j=>ids.includes(j.id)).map(j=>j.label).join(', ');
+  $('#transferJobsTarget').innerHTML = targets.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join('');
+  $('#transferJobsMode').value = 'copy'; $('#transferJobsSaveBtn').textContent = 'Kopyala';
+  $('#transferJobsErr').textContent = targets.length ? '' : 'Önce başka bir proje oluştur.';
+  $('#transferJobsSaveBtn').disabled = !targets.length;
+  $('#transferJobsDlg').showModal();
+}
+$('#transferJobsMode').onchange = () => { $('#transferJobsSaveBtn').textContent = $('#transferJobsMode').value === 'move' ? 'Taşı' : 'Kopyala'; };
+$('#transferJobsSaveBtn').onclick = async () => {
+  const button = $('#transferJobsSaveBtn'); button.disabled = true; $('#transferJobsErr').textContent = '';
+  try {
+    const mode = $('#transferJobsMode').value;
+    const result = await api('/api/jobs/transfer', {...transferSelection, mode, target_profile_id:$('#transferJobsTarget').value});
+    $('#transferJobsDlg').close(); selectedJobs.clear();
+    if (requestedProfile === transferSelection.profile_id) await load(transferSelection.profile_id);
+    if (window.GA?.jobsChanged) await GA.jobsChanged();
+    toast(`${result.count} iş ${mode==='move'?'taşındı':'kopyalandı'}. Hedefte kapalı; ayarlarını kontrol edip etkinleştir.`);
+  } catch(e) { $('#transferJobsErr').textContent = e.message; }
+  finally { button.disabled = false; }
+};
+$('#deleteAllJobsBtn').onclick = () => guard(async () => {
+  const profile = S.profile, ids = profile.jobs.map(j=>j.id);
+  if (!ids.length || !confirm(`“${profile.name}” projesindeki ${ids.length} işin TÜMÜ silinsin mi?\n\nİş tanımları, hücre eşlemeleri ve GA4 paket kayıtları kaldırılır. Rapor dosyaları, sonuç geçmişi ve diğer projeler korunur.`)) return;
+  const result = await api('/api/jobs/delete-all', {profile_id:profile.id, expected_job_ids:ids, confirm:true});
+  selectedJobs.clear(); if (requestedProfile === profile.id) await load(profile.id);
+  if (window.GA?.jobsChanged) await GA.jobsChanged();
+  toast(`${result.count} iş silindi.`);
+});
+
+async function saveProfile(profile, msg){
+  const pid = profile.id, epoch = ++editEpoch;
+  loadController?.abort();
+  const r = await api('/api/profile/save', {profile, revision: S.profile.id === pid ? S.revision : undefined});
+  if (epoch === editEpoch && requestedProfile === pid && S.profile.id === pid) await load(r.profile.id);
+  if (msg) toast(msg);
+}
+
+$('#jobList').addEventListener('click', e => guard(async () => {
+  const b = e.target.closest('button'); if (!b) return;
+  const p = structuredClone(S.profile);
+  if (b.dataset.edit) return openJob(+b.dataset.edit);
+  if (b.dataset.try) { switchTab('run'); return startRun({write: false, job_ids: [p.jobs[+b.dataset.try].id]}); }
+  if (b.dataset.transfer !== undefined) return openJobTransfer([p.jobs[+b.dataset.transfer].id]);
+  if (b.dataset.dup) { const j = structuredClone(p.jobs[+b.dataset.dup]); j.label = j.label + ' (kopya)'; delete j.id; p.jobs.splice(+b.dataset.dup + 1, 0, j); return saveProfile(p, 'Kopyalandı.'); }
+  if (b.dataset.up) { const i = +b.dataset.up; [p.jobs[i-1], p.jobs[i]] = [p.jobs[i], p.jobs[i-1]]; return saveProfile(p); }
+  if (b.dataset.down) { const i = +b.dataset.down; [p.jobs[i+1], p.jobs[i]] = [p.jobs[i], p.jobs[i+1]]; return saveProfile(p); }
+  if (b.dataset.del) { const i = +b.dataset.del; if (!confirm(`"${p.jobs[i].label}" silinsin mi? Excel'deki eski sonuçları kalır.`)) return; p.jobs.splice(i, 1); return saveProfile(p, 'Silindi.'); }
+}));
+$('#jobList').addEventListener('change', e => guard(async () => {
+  if (e.target.dataset.selectjob !== undefined) {
+    const id = e.target.dataset.selectjob;
+    if (e.target.checked) selectedJobs.add(id); else selectedJobs.delete(id);
+    renderJobSelection(); return;
+  }
+  const t = e.target.dataset.toggle; if (t === undefined) return;
+  const job = S.profile.jobs[+t], pid = S.profile.id, id = job.id;
+  const enabled = e.target.checked, previous = job.enabled;
+  const key = pid + ':' + id;
+  if (pendingToggles.has(key)) return;
+  ++editEpoch; loadController?.abort();
+  job.enabled = enabled; pendingToggles.set(key, enabled); e.target.disabled = true;
+  toggleQueue = toggleQueue.catch(() => {}).then(async () => {
+    try {
+      const r = await api('/api/jobs/enabled', {profile_id:pid, job_id:id, enabled});
+      if (S.profile.id === pid) S.revision = r.revision;
+    } catch(error) {
+      if (S.profile.id === pid) { const j = S.profile.jobs.find(j => j.id === id); if (j) j.enabled = previous; }
+      toast(error.message, true);
+    } finally {
+      pendingToggles.delete(key);
+      if (S.profile.id === pid) renderJobs();
+    }
+  });
+  await toggleQueue;
+}));
+
+// ---- iş düzenleyici ----
+function newJob(type){
+  return {type, label: '', enabled: true, event: '', filters: [], metric: 'total_event_count', period: {type: 'yesterday'}, columns: ['All Total'],
+          audience: 'all_users', audience_name: '', items: [], connector: 'AND', count_from: 'results_total', name: '',
+          rebuild: false, create_if_missing: false, poll_seconds: 60, max_wait_minutes: 60, expression: '', variables: []};
+}
+function openJob(index){
+  editing = {index, touched: index !== null, job: index === null ? newJob('event') : {...newJob(S.profile.jobs[index].type), ...structuredClone(S.profile.jobs[index])}};
+  $('#jobDlgTitle').textContent = index === null ? 'Yeni iş' : 'İşi düzenle';
+  $('#typeBtns').innerHTML = Object.keys(C.job_types).map(t => `<button type="button" data-type="${t}"><b>${esc(TYPE_NAME[t])} ${C.experimental.includes(t) ? '<span class="tag exp">deneysel</span>' : ''}</b><small>${esc(TYPE_HINT[t])}</small></button>`).join('');
+  $('#jMetric').innerHTML = Object.entries(C.metrics).map(([k, v]) => `<option value="${k}">${esc(v)} — ${esc(C.metric_tr[k])}</option>`).join('');
+  $('#jAudience').innerHTML = Object.entries(C.audiences).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+  $('#jPeriod').innerHTML = Object.entries(C.periods).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+  $('#jColumns').innerHTML = C.columns.map(c => `<label><input type="checkbox" value="${esc(c)}"> ${esc(c)}</label>`).join('');
+  $('#jCountFrom').innerHTML = Object.entries(C.people_count_sources).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+  fillEditor(); $('#jobDlg').showModal(); $('#jLabel').focus();
+}
+function fillEditor(){
+  const j = editing.job;
+  $$('#typeBtns button').forEach(b => b.classList.toggle('on', b.dataset.type === j.type));
+  const seg = j.type === 'segment_run';
+  $('#eventFields').classList.toggle('hidden', j.type !== 'event');
+  $('#periodBox').classList.toggle('hidden', !DATED.includes(j.type));
+  $('#segmentRunFields').classList.toggle('hidden', !seg);
+  $('#formulaFields').classList.toggle('hidden', j.type !== 'formula');
+  $('#jExpr').value = j.expression || ''; renderVars();
+  $('#peopleFields').classList.toggle('hidden', !(j.type === 'people' || (seg && j.rebuild)));
+  $('#jCountFromWrap').classList.toggle('hidden', seg);
+  $('#rulesTitle').textContent = seg ? 'Segment kuralları' : 'People kuralları';
+  $('#jSegName').value = j.name || ''; $('#jPoll').value = j.poll_seconds || 60; $('#jMaxWait').value = j.max_wait_minutes || 60;
+  $('#jRebuild').checked = !!j.rebuild; $('#jCreate').checked = !!j.create_if_missing; $('#jSplitDays').checked = !!j.split_days;
+  $('#namedFields').classList.toggle('hidden', !['tag', 'segment'].includes(j.type));
+  $('#namedLabel').textContent = j.type === 'tag' ? 'Tag adı' : 'Segment adı';
+  $('#jLabel').value = j.label; $('#jEnabled').checked = j.enabled;
+  $('#jEvent').value = j.event || ''; $('#jMetric').value = j.metric || 'total_event_count';
+  $('#jAudience').value = j.audience || 'all_users'; $('#jAudienceName').value = j.audience_name || ''; audienceFields();
+  $('#jPeriod').value = j.period?.type || 'yesterday'; $('#jDays').value = j.period?.days || 7;
+  $('#jStart').value = j.period?.start || ''; $('#jEnd').value = j.period?.end || '';
+  periodFields();
+  $$('#jColumns input').forEach(i => i.checked = (j.columns || ['All Total']).includes(i.value));
+  $('#jEmptyZero').checked = !!j.empty_is_zero;
+  $('#jConnector').value = j.connector || 'AND'; $('#jCountFrom').value = j.count_from || 'results_total';
+  renderPeople();
+  $('#jName').value = j.name || '';
+  renderFilters(); preview();
+}
+function renderFilters(){
+  const fs = editing.job.filters;
+  $('#filterRows').innerHTML = fs.map((f, i) => {
+    const multi = C.multi_operators.includes(f.operator), none = C.no_value_operators.includes(f.operator);
+    return `<div class="frow" data-f="${i}" data-mode="${multi ? 'multi' : none ? 'none' : 'single'}">
+      <input type="text" data-k="property" list="propList" placeholder="Property (ör. Content Id)" value="${esc(f.property)}">
+      <input type="text" data-k="operator" list="opList" placeholder="Operatör" value="${esc(f.operator)}">
+      ${multi ? `<textarea data-k="values" placeholder="Her satıra bir değer">${esc(f.values.join('\n'))}</textarea>`
+        : none ? `<input type="text" disabled placeholder="Bu operatör değer almaz">`
+              : `<input type="text" data-k="values" placeholder="Değer" value="${esc(f.values.join(''))}">`}
+      <button class="btn small danger" type="button" data-rm="${i}" title="Filtreyi sil">✕</button></div>`;
+  }).join('') || '<div class="hint">Filtre yok: event\'in tüm kayıtları sayılır.</div>';
+}
+function periodFields(){
+  $('#jDaysWrap').classList.toggle('hidden', $('#jPeriod').value !== 'last_n_days');
+  $('#jCustomWrap').classList.toggle('hidden', $('#jPeriod').value !== 'custom');
+}
+function attributeRow(a, k){
+  const s = a.value_source, source = s?.source || '';
+  return `<div class="card" data-attr="${k}" style="margin:8px 0;padding:12px">
+    <div class="frow"><input type="text" data-a="name" list="propList" placeholder="Attribute adı" value="${esc(a.name || '')}"><input type="text" data-a="operator" list="opList" placeholder="Equals" value="${esc(a.operator || 'Equals')}"><input type="text" data-a="values" placeholder="Değer (In için virgülle)" value="${esc((a.values || []).join(', '))}" ${source ? 'disabled' : ''}><button class="btn small danger" type="button" data-adel="${k}" title="Attribute filtresini sil">✕</button></div>
+    <label class="f">Filtre değerlerini nereden al?<select data-as="source"><option value="" ${!source?'selected':''}>Elle gir</option><option value="excel" ${source==='excel'?'selected':''}>Excel dosyası · tarihe göre</option><option value="google_sheets" ${source==='google_sheets'?'selected':''}>Google Sheets · tarihe göre</option></select></label>
+    ${source ? `<div class="grid2">
+      ${source==='excel' ? `<label class="f">Kaynak Excel dosyası<input data-as="file" type="text" value="${esc(s.file||'')}" placeholder="C:/Raporlar/filtre-kaynagi.xlsx"></label>` : `<label class="f">Kaynak Google Sheets bağlantısı<input data-as="sheets_id" type="text" value="${esc(s.sheets_id||'')}" placeholder="https://docs.google.com/spreadsheets/d/…/edit"></label>`}
+      <label class="f">Kaynak sekme adı<input data-as="sheet" type="text" value="${esc(s.sheet||'')}"></label>
+      <label class="f">Tarih sütunu<input data-as="date_column" type="text" value="${esc(s.date_column||'')}" placeholder="A"></label>
+      <label class="f">Değer sütunu<input data-as="value_column" type="text" value="${esc(s.value_column||'')}" placeholder="B"></label>
+      <label class="f">İlk veri satırı<input data-as="first_row" type="number" min="1" max="100000" value="${esc(s.first_row??2)}"></label>
+      <label class="f">Son taranacak satır<input data-as="last_row" type="number" min="1" max="100000" value="${esc(s.last_row??10000)}"></label>
+      <label class="f">Metin tarih sırası<select data-as="month_first"><option value="" ${!s.month_first?'selected':''}>Gün / ay / yıl</option><option value="1" ${s.month_first?'selected':''}>Ay / gün / yıl</option></select></label>
+    </div><p class="hint">Genel tarih seçimi veya bu işin dönemi kullanılır. Her günü ayrı hesaplamada her günün değerleri yeniden okunur. Tarih sütununda yıl içeren tam tarih, her hücrede bir filtre değeri olmalı. Aynı tarihin birden çok değeri In / Not In ile aktarılır. Kimliklerin başındaki sıfırları korumak için hücreleri metin olarak sakla. Her günün başında bu attribute’a × ile bir kez basılır. Satır kaldırılırsa aynı ad ve operatörle yeniden eklenir; kalırsa aynı satır kullanılır. O günün değerleri + Add Value ile sırayla girilir. Diğer kurallar korunur. Eksik/boş değerde o gün kaydedilmez.</p>` : ''}
+  </div>`;
+}
+function ruleRow(r, path, no){
+  const known = C.people_fields.includes(r.field);
+  const families = (C.people_step_choices || {})[r.field] || [];
+  const structured = ['Behavior', 'Response'].includes(r.field);
+  const rangeMode = families.flat().find(v => ['between dates', 'date between'].includes(v.toLowerCase()));
+  const between = !!rangeMode && (r.steps || []).includes(rangeMode);
+  const optionSelect = (choices, i) => {
+    const selected = (r.steps || []).find(s => choices.includes(s)) || '';
+    if (between && choices.includes('Day')) return '';
+    const title = r.field === 'Behavior' ? ['Gerçekleşme', 'Olay adedi koşulu', 'Zaman aralığı', 'Zaman birimi'][i] : ['Yanıt koşulu', 'Zaman aralığı'][i] || 'Ek seçenek';
+    return `<label class="f">${title}<select data-family="${i}" aria-label="${title}"><option value="">Panel varsayılanı</option>${choices.map(v => `<option value="${esc(v)}" ${selected === v ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>`;
+  };
+  const segment = editing.job.type === 'segment_run';
+  const attrs = segment && r.field === 'Behavior' ? `<div class="date-range"><div class="section-title" style="margin-top:0"><h3>Attribute filtreleri</h3><span class="tag">+ attribute filter</span></div>
+    ${(r.attributes || []).map(attributeRow).join('')}
+    <button class="btn small" type="button" data-aadd="1">+ attribute filtresi</button></div>` : '';
+  const dateFields = between && segment ? `<div class="date-range"><p class="date-note" style="margin:0">Tarih kutularına <b>çalışmanın tarihi</b> yazılır (işin tarih aralığı veya Çalıştır'da seçtiğin günler).</p></div>` : between ? `<div class="date-range"><div class="section-title" style="margin-top:0"><h3>Tarih aralığı</h3><button type="button" class="info-btn" data-info="dates" aria-label="Tarih aralığı hakkında bilgi">i</button><span class="tag">Sabit tarihler</span></div><div class="grid2">
+    <label class="f">Başlangıç tarihi<input type="date" data-date="start" value="${esc(r.date_range?.start || '')}" required></label>
+    <label class="f">Bitiş tarihi<input type="date" data-date="end" value="${esc(r.date_range?.end || '')}" required></label>
+    </div><p class="date-note">Her çalışmada bu tarihler kullanılır. Günlük kayan pencere için “in the last” seç.</p></div>` : '';
+  return `<div class="rrow" data-p="${path}">
+    <div class="rule-head"><div class="rule-heading"><span class="no">${no}</span> Kural ${known && !C.people_verified_fields.includes(r.field) ? '<span class="tag exp">deneysel</span>' : ''}<button type="button" class="info-btn" data-info="rule" aria-label="Kural alanları hakkında bilgi">i</button></div>
+    <div class="row" style="gap:4px"><button class="btn small" type="button" data-pup="${path}" aria-label="Kuralı yukarı taşı">↑</button><button class="btn small" type="button" data-pdown="${path}" aria-label="Kuralı aşağı taşı">↓</button><button class="btn small danger" type="button" data-pdel="${path}" aria-label="Kuralı sil">✕</button></div></div>
+    <div class="rule-fields ${structured ? 'two' : ''}">
+    <label class="f">Alan<input type="text" data-k="field" data-field="${esc(r.field)}" list="peopleFieldList" value="${esc(r.field)}" placeholder="Ör. App Version" title="${known ? '' : 'Bu alan şemada yok'}"></label>
+    <label class="f">${structured ? 'Event / değer' : 'Değer'}<input type="text" data-k="value" list="peopleValueList" value="${esc(r.value)}" placeholder="${structured ? 'Paneldeki event adı' : 'Ör. Android 1.2.3'}"></label>
+    ${structured ? '' : `<label class="f">Operatör<input type="text" data-k="operator" list="verOpList" value="${esc(r.operator || '')}" placeholder="Panel varsayılanı"></label>`}</div>
+    <div class="rule-options">${structured ? families.map(optionSelect).join('') : `<label class="f">Ek adımlar <input type="text" data-k="steps" value="${esc((r.steps || []).join(', '))}" placeholder="Varsa, virgülle ayır"></label>`}
+    ${r.field === 'Behavior' ? `<label class="f">Olay adedi<input type="number" min="0" max="100000" data-number="0" value="${esc(r.numbers?.[0] ?? '')}" placeholder="Ör. 1"></label>${between ? '' : `<label class="f">Son kaç birim?<input type="number" min="0" max="100000" data-number="1" value="${esc(r.numbers?.[1] ?? '')}" placeholder="Ör. 7"></label>`}` : `<label class="f">Sayılar (varsa)<input type="text" data-k="numbers" value="${esc((r.numbers || []).join(', '))}" placeholder="Virgülle ayır"></label>`}
+    ${dateFields}${attrs}</div>
+  </div>`;
+}
+function renderPeople(){
+  const items = editing.job.items || [];
+  const join = t => `<div class="rule-join">${t === 'OR' ? 'VEYA · OR' : 'VE · AND'}</div>`;
+  $('#peopleItems').innerHTML = items.map((it, i) => (i ? join($('#jConnector').value) : '') + (it.kind === 'group'
+    ? `<div class="pgroup"><div class="row" style="justify-content:space-between;margin-bottom:6px">
+         <b>Grup ${i + 1}</b>
+         <span class="row" style="gap:6px">Grup içi bağlaç <select data-gc="${i}" style="width:auto"><option ${it.connector === 'AND' ? 'selected' : ''}>AND</option><option ${it.connector === 'OR' ? 'selected' : ''}>OR</option></select>
+         <button class="btn small" type="button" data-gadd="${i}">+ Kural (gruba)</button><button class="btn small" type="button" data-pup="${i}">↑</button><button class="btn small" type="button" data-pdown="${i}">↓</button><button class="btn small danger" type="button" data-pdel="${i}">✕</button></span></div>
+       ${it.rules.map((r, j) => (j ? join(it.connector) : '') + ruleRow(r, `${i}.${j}`, `${i + 1}.${j + 1}`)).join('') || '<div class="hint">Grup boş.</div>'}</div>`
+    : ruleRow(it, String(i), i + 1))).join('') || '<div class="hint">Kural yok. "+ Kural" ile ekle.</div>';
+}
+function peopleList(path){  // path: "i" → üst liste; "i.j" → grubun listesi
+  const parts = path.split('.').map(Number);
+  return parts.length === 1 ? [editing.job.items, parts[0]] : [editing.job.items[parts[0]].rules, parts[1]];
+}
+$('#peopleItems').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const d = b.dataset;
+  if (d.info !== undefined) return;
+  if (d.gadd !== undefined) editing.job.items[+d.gadd].rules.push({field: '', value: ''});
+  for (const [key, move] of [['pup', -1], ['pdown', 1]]) if (d[key] !== undefined) {
+    const [list, i] = peopleList(d[key]); const k = i + move;
+    if (k >= 0 && k < list.length) [list[i], list[k]] = [list[k], list[i]];
+  }
+  if (d.pdel !== undefined) { const [list, i] = peopleList(d.pdel); list.splice(i, 1); }
+  const row = b.closest('[data-p]');
+  if (row && (d.aadd !== undefined || d.adel !== undefined)) {
+    const [list, i] = peopleList(row.dataset.p); list[i].attributes ||= [];
+    if (d.aadd !== undefined) list[i].attributes.push({name: '', operator: 'Equals', values: []}); else list[i].attributes.splice(+d.adel, 1);
+  }
+  editing.touched = true; renderPeople(); preview();
+});
+$('#peopleItems').addEventListener('input', e => {
+  const row = e.target.closest('[data-p]'); if (!row) return;
+  const [list, i] = peopleList(row.dataset.p), k = e.target.dataset.k, v = e.target.value;
+  if (e.target.dataset.as) {
+    const a = list[i].attributes[+e.target.closest('[data-attr]').dataset.attr], key = e.target.dataset.as;
+    if (key !== 'source') { a.value_source ||= {}; a.value_source[key] = key === 'month_first' ? v === '1' : v; }
+    editing.touched = true; return;
+  }
+  if (e.target.dataset.a) { const a = list[i].attributes[+e.target.closest('[data-attr]').dataset.attr];
+    a[e.target.dataset.a] = e.target.dataset.a === 'values' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; return; }
+  if (e.target.dataset.date) { list[i].date_range ||= {start:'',end:''}; list[i].date_range[e.target.dataset.date] = v; return; }
+  if (e.target.dataset.number !== undefined) { list[i].numbers ||= []; list[i].numbers[+e.target.dataset.number] = v; return; }
+  if (!k) return;
+  if (k === 'steps' || k === 'numbers') list[i][k] = v.split(',').map(x => x.trim()).filter(Boolean);
+  else list[i][k] = v;
+  if (k === 'field') {  // alan değiştiyse değer önerileri o alana göre; Behavior için Netmera event adları
+    const values = v === 'Behavior' ? [...new Set([...S.catalog, ...C.known_events])] : (C.people_values || {})[v] || [];
+    $('#peopleValueList').innerHTML = values.map(x => `<option value="${esc(x)}">`).join('');
+  }
+});
+$('#peopleItems').addEventListener('change', e => {
+  if (e.target.dataset.gc !== undefined) { editing.job.items[+e.target.dataset.gc].connector = e.target.value; renderPeople(); }
+  const row = e.target.closest('[data-p]'); if (!row) return;
+  const [list, i] = peopleList(row.dataset.p), r = list[i];
+  if (e.target.dataset.as === 'source') {
+    const a = r.attributes[+e.target.closest('[data-attr]').dataset.attr];
+    if (!e.target.value) delete a.value_source;
+    else { a.value_source = {...(a.value_source || {first_row:2,last_row:10000}), source:e.target.value}; a.values = []; }
+    editing.touched = true; renderPeople(); preview(); return;
+  }
+  if (e.target.dataset.family !== undefined) {
+    const families = C.people_step_choices[r.field], choices = families[+e.target.dataset.family];
+    r.steps = (r.steps || []).filter(s => !choices.includes(s)); if (e.target.value) r.steps.push(e.target.value);
+    const mode = families.flat().find(v => ['between dates','date between'].includes(v.toLowerCase()));
+    if (mode && choices.includes(mode)) {
+      if (e.target.value === mode) { r.steps = r.steps.filter(s => !['Day','Week','Month'].includes(s)); r.numbers = (r.numbers || []).slice(0,1); r.date_range ||= {start:'',end:''}; }
+      else { delete r.date_range; if (r.field === 'Behavior') { if (!r.steps.some(s => ['Day','Week','Month'].includes(s))) r.steps.push('Day'); r.numbers = [r.numbers?.[0] ?? 1, 7]; } }
+    }
+    renderPeople();
+  }
+  if (e.target.dataset.k === 'field') {
+    if (e.target.dataset.field !== r.field) {
+      delete r.operator; delete r.steps; delete r.numbers; delete r.date_range; r.value = '';
+      if (r.field === 'Behavior') { r.steps = ['Did','more than','in the last','Day']; r.numbers = [1,7]; }
+    }
+    renderPeople();
+  }
+});
+$('#addPRule').onclick = () => { editing.job.items.push({kind: 'rule', field: '', value: ''}); editing.touched = true; renderPeople(); preview(); };
+$('#addPGroup').onclick = () => { editing.job.items.push({kind: 'group', connector: 'AND', rules: [{field: '', value: ''}]}); editing.touched = true; renderPeople(); preview(); };
+function readEditor(){
+  const j = editing.job;
+  j.label = $('#jLabel').value; j.enabled = $('#jEnabled').checked;
+  if (j.type === 'event') {
+    j.event = $('#jEvent').value; j.metric = $('#jMetric').value;
+    j.audience = $('#jAudience').value; j.audience_name = $('#jAudienceName').value;
+    const pt = $('#jPeriod').value;
+    j.period = pt === 'last_n_days' ? {type: pt, days: parseInt($('#jDays').value, 10)}
+             : pt === 'custom' ? {type: pt, start: $('#jStart').value, end: $('#jEnd').value || $('#jStart').value} : {type: pt};
+    j.columns = $$('#jColumns input:checked').map(i => i.value);
+    j.empty_is_zero = $('#jEmptyZero').checked;
+  }
+  if (j.type === 'people') { j.connector = $('#jConnector').value; j.count_from = $('#jCountFrom').value; }
+  if (j.type === 'tag' || j.type === 'segment') j.name = $('#jName').value;
+  if (DATED.includes(j.type)) {
+    const pt = $('#jPeriod').value;
+    j.period = pt === 'last_n_days' ? {type: pt, days: parseInt($('#jDays').value, 10)}
+             : pt === 'custom' ? {type: pt, start: $('#jStart').value, end: $('#jEnd').value || $('#jStart').value} : {type: pt};
+  }
+  if (j.type === 'formula') j.expression = $('#jExpr').value;
+  if (j.type === 'segment_run') {
+    j.name = $('#jSegName').value; j.rebuild = $('#jRebuild').checked; j.create_if_missing = $('#jCreate').checked; j.split_days = $('#jSplitDays').checked;
+    j.poll_seconds = parseInt($('#jPoll').value, 10); j.max_wait_minutes = parseInt($('#jMaxWait').value, 10); j.connector = $('#jConnector').value;
+  }
+}
+function cleanJob(j){
+  const base = {type: j.type, label: j.label, enabled: j.enabled}; if (j.id) base.id = j.id;
+  if (j.type === 'event') return {...base, event: j.event, filters: j.filters, metric: j.metric, period: j.period, columns: j.columns, audience: j.audience || 'all_users', ...(j.audience === 'tag' ? {audience_name:j.audience_name} : {}), empty_is_zero: !!j.empty_is_zero};
+  if (j.type === 'formula') return {...base, expression: j.expression, variables: j.variables.map(v => {
+    if (v.kind === 'job') return {name: v.name, kind: 'job', job_id: v.job_id || '', column: v.column || null};
+    const o = {name: v.name, kind: 'cell', source: v.source || 'output', sheet: v.sheet || '', mode: v.mode || 'fixed_cell'};
+    if (o.source === 'excel') o.file = v.file || ''; if (o.source === 'google_sheets') o.sheets_id = v.sheets_id || '';
+    if (o.mode === 'fixed_cell') o.cell = v.cell || '';
+    else { o.date_basis = v.date_basis || 'data_day'; if (v.month_first === true || v.month_first === '1') o.month_first = true; if (o.mode === 'date_row') Object.assign(o, {date_column: v.date_column || '', value_column: v.value_column || ''});
+           else Object.assign(o, {header_row: parseInt(v.header_row, 10) || null, value_row: parseInt(v.value_row, 10) || null}); }
+    return o; })};
+  if (j.type === 'people' || j.type === 'segment_run') {
+    const clean = r => {
+      const o = {field: r.field, value: r.value}; if (r.operator) o.operator = r.operator;
+      if (j.type === 'segment_run' && r.attributes?.length) o.attributes = r.attributes.map(a => ({...a}));
+      const between = (r.steps || []).some(s => ['between dates','date between'].includes(s.toLowerCase()));
+      const steps = between ? r.steps.filter(s => !['Day','Week','Month'].includes(s)) : r.steps;
+      const numbers = between ? (r.numbers || []).slice(0,1) : r.numbers;
+      if (steps?.length) o.steps = steps; if (numbers?.length) o.numbers = numbers;
+      if (r.date_range && j.type !== 'segment_run') o.date_range = {...r.date_range}; return o;
+    };
+    if (j.type === 'segment_run') return {...base, name: j.name, period: j.period, rebuild: j.rebuild, create_if_missing: j.create_if_missing, split_days: !!j.split_days,
+      poll_seconds: j.poll_seconds, max_wait_minutes: j.max_wait_minutes,
+      ...(j.rebuild ? {connector: j.connector, items: j.items.map(it => it.kind === 'group' ? {kind: 'group', connector: it.connector, rules: it.rules.map(clean)} : {kind: 'rule', ...clean(it)})} : {})};
+    return {...base, connector: j.connector, count_from: j.count_from,
+            items: j.items.map(it => it.kind === 'group' ? {kind: 'group', connector: it.connector, rules: it.rules.map(clean)} : {kind: 'rule', ...clean(it)})};
+  }
+  return {...base, name: j.name};
+}
+let previewTimer = null;
+function audienceFields(){ $('#jAudienceNameWrap').classList.toggle('hidden', $('#jAudience').value !== 'tag'); }
+function preview(){
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(async () => {
+    readEditor();
+    try { const r = await api('/api/job/check', {job: cleanJob(editing.job), profile_id: S.profile.id}); $('#jPreview').textContent = 'Okunacak: ' + r.description; $('#jErr').textContent = ''; }
+    catch(e) { $('#jPreview').textContent = 'Okunacak: —'; $('#jErr').textContent = editing.touched ? e.message : ''; }
+  }, 250);
+}
+$('#typeBtns').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; readEditor(); editing.job.type = b.dataset.type; fillEditor(); });
+$('#jobDlg').addEventListener('input', e => {
+  editing.touched = true;
+  const row = e.target.closest('[data-f]');
+  if (row) {
+    const f = editing.job.filters[+row.dataset.f], k = e.target.dataset.k;
+    if (k === 'values') f.values = e.target.value.split('\n').map(v => v.trim()).filter(Boolean);
+    else f[k] = e.target.value;
+    if (k === 'operator') {
+      const mode = C.multi_operators.includes(f.operator) ? 'multi' : C.no_value_operators.includes(f.operator) ? 'none' : 'single';
+      if (mode === 'none') f.values = [];
+      if (mode !== row.dataset.mode) { renderFilters(); const el = $(`[data-f="${row.dataset.f}"] [data-k=operator]`); el.focus(); el.setSelectionRange(99, 99); } }
+  }
+  if (e.target.id === 'jPeriod') periodFields();
+  if (e.target.id === 'jAudience') audienceFields();
+  preview();
+});
+$('#jobDlg').addEventListener('change', e => {
+  editing.touched = true;
+  if (e.target.id === 'jPeriod') periodFields();
+  if (e.target.id === 'jAudience') audienceFields();
+  if (e.target.id === 'jConnector') renderPeople();
+  if (e.target.id === 'jRebuild') { readEditor(); if (editing.job.rebuild && !editing.job.items.length) editing.job.items.push({kind: 'rule', field: 'Behavior', value: '', steps: ['Did', 'more than', 'between dates'], numbers: [0]}); fillEditor(); }
+  preview();
+});
+// ---- hesaplama değişkenleri ----
+function renderVars(){
+  const vars = editing.job.variables || [];
+  const self = editing.index === null ? null : S.profile.jobs[editing.index]?.id;
+  const jobOptions = S.profile.jobs.filter(j => j.id !== self).flatMap(j => (j.columns || [null]).map(c =>
+    [JSON.stringify([j.id, c]), (c && c !== 'All Total' ? `${j.label} [${c}]` : j.label) + (j.enabled ? '' : ' (kapalı)')]));
+  const sel = (key, entries, value) => `<select data-vk="${key}">${entries.map(([k, t]) => `<option value="${esc(k)}" ${k === value ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
+  const inp = (key, label, value, ph, extra = '') => `<label class="f">${label}<input type="text" data-vk="${key}" value="${esc(value ?? '')}" placeholder="${esc(ph)}" ${extra}></label>`;
+  $('#varRows').innerHTML = vars.map((v, i) => {
+    let body;
+    if (v.kind === 'job') {
+      const current = JSON.stringify([v.job_id || '', v.column || null]);
+      const opts = jobOptions.some(([k]) => k === current) ? jobOptions : [[current, v.job_id ? `(bulunamadı: ${v.job_id})` : 'İş seç…'], ...jobOptions];
+      body = `<label class="f">Hangi işin sonucu?${sel('jobref', opts, current)}</label>`;
+    } else {
+      const src = v.source || 'output', mode = v.mode || 'fixed_cell';
+      body = `<div class="grid2"><label class="f">Dosya${sel('source', Object.entries(C.formula_sources), src)}</label>
+        ${src === 'excel' ? `<div class="f"><span>Excel dosyası</span><span class="row" style="flex-wrap:nowrap"><input type="text" data-vk="file" value="${esc(v.file || '')}" placeholder="C:\\...\\dosya.xlsx"><button class="btn small" type="button" data-vpick="${i}">Seç</button></span></div>` : ''}
+        ${src === 'google_sheets' ? inp('sheets_id', 'Google Sheet bağlantısı', v.sheets_id, 'https://docs.google.com/spreadsheets/d/…') : ''}
+        ${inp('sheet', 'Sayfa adı', v.sheet, 'Ör. Rapor')}
+        <label class="f">Hücre nasıl bulunsun?${sel('mode', Object.entries(C.formula_modes), mode)}</label>
+        ${mode === 'fixed_cell' ? inp('cell', 'Hücre', v.cell, 'Ör. C5') : ''}
+        ${mode === 'date_row' ? inp('date_column', 'Tarih sütunu', v.date_column, 'Ör. A') + inp('value_column', 'Değerin sütunu', v.value_column, 'Ör. C') : ''}
+        ${mode === 'header_lookup' ? inp('header_row', 'Tarihlerin olduğu satır', v.header_row, 'Ör. 2') + inp('value_row', 'Değerin satırı', v.value_row, 'Ör. 5') : ''}
+        ${mode === 'fixed_cell' ? '' : `<label class="f">Hangi güne göre?${sel('date_basis', Object.entries(C.date_bases), v.date_basis || 'data_day')}<small>Seçtiğin tarihi okumak için “Verinin günü”. Çalışma günü ve bir önceki gün, çalışmanın başladığı güne göre hesaplanır.</small></label><label class="f">Metin tarih sırası${sel('month_first', [['', 'Gün / ay / yıl'], ['1', 'Ay / gün / yıl — Amerikan']], v.month_first === true || v.month_first === '1' ? '1' : '')}<small>Gerçek tarih hücrelerinde biçim fark etmez; bu seçenek 10/21/2026 gibi metin tarihler içindir.</small></label>`}</div>`;
+    }
+    return `<div class="rrow" data-v="${i}"><div class="rule-head"><div class="rule-heading"><span class="no">${esc(v.name)}</span> ${v.kind === 'job' ? 'İş sonucu' : 'Tablo hücresi'}</div>
+      <button class="btn small danger" type="button" data-vdel="${i}" aria-label="Değişkeni sil">✕</button></div>${body}</div>`;
+  }).join('') || '<div class="hint">Değişken yok. "+ İş sonucu" veya "+ Tablo hücresi" ile ekle.</div>';
+}
+function addVar(kind){
+  const used = new Set(editing.job.variables.map(v => v.name));
+  const name = 'ABCDEFGHIJ'.split('').find(c => !used.has(c)); if (!name) return toast('En çok 10 değişken.', true);
+  editing.job.variables.push(kind === 'job' ? {name, kind, job_id: '', column: null} : {name, kind, source: 'output', sheet: '', mode: 'fixed_cell', cell: ''});
+  editing.touched = true; renderVars(); preview();
+}
+$('#addVarJob').onclick = () => addVar('job');
+$('#addVarCell').onclick = () => addVar('cell');
+$('#varRows').addEventListener('click', e => guard(async () => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.vdel !== undefined) { editing.job.variables.splice(+b.dataset.vdel, 1); renderVars(); preview(); }
+  if (b.dataset.vpick !== undefined) { const v = editing.job.variables[+b.dataset.vpick]; const r = await api('/api/pick-file', {current: v.file || ''}); if (r.path) { v.file = r.path; renderVars(); preview(); } }
+}));
+$('#varRows').addEventListener('input', e => {
+  const row = e.target.closest('[data-v]'), key = e.target.dataset.vk; if (!row || !key) return;
+  const v = editing.job.variables[+row.dataset.v];
+  if (key === 'jobref') { [v.job_id, v.column] = JSON.parse(e.target.value); return; }
+  v[key] = e.target.value;
+  if (['source', 'mode'].includes(key)) renderVars();
+});
+$('#segRulesBtn').onclick = () => guard(async () => {
+  // Segment formu yalnız okunur; kurallar bu editöre yazılır. Netmera'da hiçbir şey kaydedilmez.
+  const name = $('#jSegName').value.trim(); if (!name) throw new Error('Önce segment adını yaz.');
+  if (S.profile.source === 'demo') throw new Error('Demo projesi Netmera\'ya bağlanmaz; kuralları elle gir.');
+  await api('/api/segment-rules', {profile_id: S.profile.id, name});
+  const btn = $('#segRulesBtn'); btn.disabled = true; btn.textContent = 'Kurallar okunuyor…'; poll(true);
+  try {
+    let st; do { await new Promise(r => setTimeout(r, 1000)); st = await api('/api/status'); } while (st.busy);
+    if (st.error || !st.result?.segment_rules) throw new Error(st.error ? st.error.replace(/^✗\s*/, '') : 'Kurallar okunamadı.');
+    readEditor();
+    Object.assign(editing.job, {rebuild: true, items: st.result.segment_rules.items, connector: st.result.segment_rules.connector});
+    editing.touched = true; fillEditor(); preview();
+    toast('Kurallar alındı. Kontrol et; yalnız tarih değiştireceksen “Kuralları yeniden kur”u kapatabilirsin.');
+  } finally { btn.disabled = false; btn.textContent = 'Bu segmentin kurallarını al'; }
+});
+
+$('#filterRows').addEventListener('click', e => { const b = e.target.closest('[data-rm]'); if (!b) return; editing.job.filters.splice(+b.dataset.rm, 1); renderFilters(); preview(); });
+$('#addFilterBtn').onclick = () => { editing.job.filters.push({property: '', operator: 'Equals', values: []}); renderFilters(); $$('#filterRows [data-k=property]').at(-1).focus(); preview(); };
+$('#jobSaveBtn').onclick = () => guard(async () => {
+  editing.touched = true; readEditor();
+  const p = structuredClone(S.profile), job = cleanJob(editing.job);
+  if (editing.index === null) p.jobs.push(job); else p.jobs[editing.index] = job;
+  try { await saveProfile(p, 'İş kaydedildi.'); $('#jobDlg').close(); }
+  catch(e) { $('#jErr').textContent = e.message; }
+});
+$('#addJobBtn').onclick = () => openJob(null);
+$$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+const INFO = {
+  login: ['Otomatik giriş nasıl çalışır?', '<p>E-posta ve şifreyi bu formda bir kez doldur; <b>Oturum bittiğinde otomatik giriş yap</b> seçeneğini açıp <b>Giriş ayarlarını kaydet</b> düğmesine bas.</p><p>Config bu bilgisayarda, proje veri klasöründe oluşturulur. Şifre düz metin kaydedilmez; Windows DPAPI kullanılır. Başka bilgisayarda veya Windows hesabında bilgileri yeniden gir.</p><p>Şifre kutusunu boş bırakırsan kayıtlı şifre korunur. Hesabı değiştirirken yeni şifre de gerekir. Başarısız girişten sonra otomatik tekrarlar durur; bilgileri kontrol edip tekrar kaydet.</p><p>Çalışma başına en çok bir giriş denemesi yapılır. Kod/CAPTCHA, şifre yenileme veya uygulama seçimi gerekirse elle giriş gerekir. Netmera oturum süresi uzatılmaz; giriş sayfasına düşen oturum yenilenir.</p>'],
+  people: ['People kuralları', '<p>Kuralları Netmera’daki sırayla ekle. Alanı ve değeri panelde göründüğü gibi yaz. Behavior seçince olay adedi ve zaman seçenekleri açılır.</p><p>“Dene” sorguyu çalıştırır ve sonucu gösterir. Excel’e kayıt yapmaz.</p>'],
+  rule: ['Kural alanları', '<p><b>Alan</b>, Add Filter Rule menüsündeki başlıktır. <b>Değer</b>, o başlık altında seçtiğin event, sürüm veya seçenektir.</p><p>Operatörü ve ek seçenekleri panelle aynı seç. “Deneysel” alanların prod’da uçtan uca çalışması henüz doğrulanmamıştır.</p>'],
+  dates: ['between dates nasıl çalışır?', '<p>Başlangıç ve bitiş tarihlerini takvimden seç. İkisi de gerekli; bitiş başlangıçtan önce olamaz. Gelecek tarih ve bir yıldan uzun aralık kabul edilmez.</p><p>Bu <b>sabit aralık</b> her çalışmada tekrar kullanılır. Her gün kayan dönem istiyorsan “in the last”, sayı ve Day / Week / Month seç.</p><p>Otomasyon Netmera’da iki kutuyu doldurur ve değerleri yeniden kontrol eder. Tarihler tutmazsa sayı okunmaz. Çalıştır ekranındaki Event tarihini değiştirmek bu People aralığını değiştirmez.</p>'],
+  groups: ['AND, OR ve grup', '<p><b>AND (VE):</b> kişi tüm koşulları sağlamalı. <b>OR (VEYA):</b> koşullardan birini sağlaması yeterli.</p><p>Üst düzey bağlaç tüm üst kurallarda aynıdır. Farklı bağlaç gereken kuralları bir gruba ekle; grubun kendi AND / OR seçimi vardır.</p>'],
+  metric: ['Hangi sayı alınacak?', '<p><b>Total Event Count:</b> olayın toplam gerçekleşme sayısı. Aynı kişi birden çok kez sayılabilir.</p><p><b>Unique User Count:</b> olayla ilişkili tekil kullanıcı sayısı.</p><p><b>By Session:</b> Find sonrası açılan Event Analytics by Dimensions bölümünde By Session seçilip o bölümün özet tablosu okunur. Oturum tanımı Netmera’ya aittir; sayı başka metriklerden hesaplanmaz.</p><p>Seçilen platform sütunları ayrı ayrı okunur; toplanmaz.</p>'],
+  audience: ['Event hangi kitle için ölçülecek?', '<p><b>All Users:</b> tüm kullanıcıların event sonucu.</p><p><b>Tag:</b> panelde var olan tek bir etiketin kullanıcıları için event sonucu. Etiket adını paneldeki yazımla birebir gir. Event property filtreleri de aynı sorguya uygulanır.</p><p>Bu seçim etiketteki kişi sayısını okumaz; yeni etiket oluşturmaz veya kullanıcıları etiketlemez. Bulunamayan ya da birden çok eşleşen etiket hata verir.</p>'],
+  run: ['Dene ve çıktıya yaz', '<p><b>Dene:</b> seçili işleri çalıştırır ve sonuçları bu ekranda gösterir; Excel veya Sheets hedefini değiştirmez.</p><p><b>Çalıştır:</b> sonuçları Ayarlar’da seçilen hedefe kaydeder. Hatalı sorguya sıfır tahmin edilmez; hata durumu gösterilir.</p>'],
+  schedule: ['Otomatik çalışma', '<p>Windows durumu, son/sonraki çalışma saati ve sonuç kodu gerçek görevden okunur. “Kurulu” yazısı tek başına raporun tamamlandığını göstermez.</p><p>Alttaki uygulama kaydı, zamanlanmış çalışmanın başarılı/hatalı işlerini ve çıktı yazımını gösterir. “Görevi şimdi çalıştır” Windows görevini başlatır ve seçilen Excel/Sheets hedefine yazar. “Dene” hedefi değiştirmez.</p><p>Bilgisayar açık, uyanık ve Windows oturumu açık olmalı. Netmera erişimi ve geçerli giriş oturumu gerekir. Sheets için Google bağlantısı da gerekir.</p>'],
+  mapping: ['Hücre eşleme ve günlük kayma', '<p><b>Sabit:</b> aynı hücre güncellenir. <b>Tarih satırı:</b> tarih sütununda (dikey) tek eşleşme gerekir. <b>Günlük kayma:</b> başlangıç tarihi/hücresinden aşağı, sağa veya ikisi birlikte ilerler; ay değişince başa dönmez. Kayma çalışma sayısından değil tarih farkından hesaplanır. Aynı günü tekrar denemek hedefi yeniden kaydırmaz; atlanan günler boş kalır.</p><p><b>Başlık satırında bul:</b> tarihler bir satırda yan yana ise (B=1 Ekim … AF=31 Ekim) o satırda dünün tarihini, yalnız 1–31 gün numaraları varsa günün numarasını bulur ve aynı sütunda <b>yazılacak satır</b>a yazar. Her ay başlık tarihini güncellediğinde kendiliğinden yeni aya geçer; başlık güncellenmemişse tarih bulunmaz ve yazılmaz. 30 günlük ayın 31. sütunu gibi bir sonraki aya taşan günlere yazmaz. <b>Ay adı kontrol hücresi</b> doluysa (ör. A82) o hücrede ayın adı yazmıyorsa yazılmaz; ay satırlarını kaydırdığın bloklar için.</p><p><b>Hangi güne göre?</b> Verinin günü: Event için sorgunun günü (dün). Bir önceki gün: People/Tag/Segment gibi sabah çekilen anlık sayıları dünün sütununa yazar.</p><p>Önizleme yazmaz. Hatalı sorgu eski değeri korur; formüllü, birleştirilmiş veya korumalı hedefte yazım durur. Yerel Excel öncesinde yedeklenir. Google Sheets, o çalışmanın hazır hücrelerini tek istekte günceller; aynı hedefte eşzamanlı elle düzenleme yapmayın.</p>'],
+  google: ['Ortak Google bağlantısı', '<p>OAuth JSON dosyası ve Google hesabı <b>Google bağlantısı</b> ekranında yönetilir. GA4 ve bütün projelerin Sheets erişimi aynı hesabı kullanır.</p><p>Oturum bu Windows hesabında DPAPI ile korunur; başka bilgisayarda yeniden bağlanır. Çıkış bütün projelerin Google oturumunu kapatır.</p><p>Ayarlar’da hedef dosyayı ve hücreleri seçersin. <b>Dosya erişimini doğrula (yazmaz)</b> dosyanın adını ve sayfalarını okur; hücreleri değiştirmez.</p><p>Sheets izni hesabın erişebildiği tabloları kapsar. Eksik izinde eski proje hesabına geçilmez. Ayrıntılı adımlar: <b>Google kurulum rehberi</b>.</p>'],
+  excel: ['Excel yazma seçenekleri', '<p><b>Raporu güncelle:</b> uygulamanın Gunluk / Sonuclar raporunu sonuç deposundan yeniden üretir. Aynı günün güncel değerlerini gösterir.</p><p><b>Altına ekle:</b> her çalışmayı seçtiğin sayfanın sonuna bir satır olarak ekler. Boş sayfayı oluşturabilir. Mevcut iş sütunu başlıkları, işlerin Excel sütun adlarıyla eşleşmeli (büyük/küçük harf ve kenar boşlukları önemsenmez). “Tarih” / “Çalışma günü”, “Son çalışma” ve “Dönem” sütunları varsa otomatik doldurulur. Fazladan sütunlar korunur; otomatik doldurulmaz.</p><p><b>Yeni sayfa:</b> her çalışmaya tarih/saat içeren ayrı sayfa açar. Diğer sayfalara veri yazılmaz.</p><p>Eklemeli modlar standart .xlsx dosyalarını kullanır. Mevcut dosya değiştirilmeden önce yanına .netmera-yedek.xlsx kopyası alınır. Özel Excel bileşenleri için önce dosyanın bir kopyasında dene. Dosya kilitliyse bekleyen kayıtlar saklanır; “Excel yazımını yeniden dene” ile aktarılır. Aynı çalışma iki kez eklenmez.</p>']
+};
+let infoReturnFocus = null;
+document.addEventListener('click', e => {
+  const button = e.target.closest('[data-info]'); if (!button || !INFO[button.dataset.info]) return;
+  e.preventDefault(); infoReturnFocus = button;
+  const [title, body] = INFO[button.dataset.info];
+  $('#infoTitle').textContent = title; $('#infoBody').innerHTML = body; $('#infoDlg').showModal();
+});
+$('#infoDlg').addEventListener('click', e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  if (e.target === e.currentTarget && (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom)) e.currentTarget.close();
+});
+$('#infoDlg').addEventListener('close', () => { if (infoReturnFocus?.isConnected) infoReturnFocus.focus(); });
+
+// ---- ayarlar ----
+function renderOutputLabels(){
+  const p = S.profile;
+  $('#runBtn').textContent=p.output_target==='google_sheets'?'Çalıştır ve Sheets’e yaz':"Çalıştır ve Excel'e yaz";
+  $('#rebuildBtn').textContent = p.output_target==='google_sheets'?'Sheets yazımını yeniden dene':p.excel_mode && p.excel_mode !== 'rebuild' ? 'Excel yazımını yeniden dene' : "Excel'i yeniden oluştur";
+  $('[data-open=excel]').textContent=p.output_target==='google_sheets'?"Sheets’i aç":"Excel’i aç";
+  $('#runTaskBtn').textContent=p.output_target==='google_sheets'?"Görevi şimdi çalıştır (Sheets’e yazar)":"Görevi şimdi çalıştır (Excel’e yazar)";
+}
+function renderSettings(){
+  settingsDrawn = true;
+  const p = S.profile;
+  $('#setOutputTarget').value=p.output_target||'excel';$('#setSheets').value=p.sheets_id||'';
+  $('#setName').value = p.name; $('#setApp').value = p.netmera_app; $('#setOutput').value = p.output_file;
+  $('#setExcelMode').innerHTML = Object.entries(C.excel_modes).map(([k,v]) => `<option value="${k}">${esc(v)}</option>`).join('');
+  $('#setExcelMode').value = p.excel_mode || 'rebuild'; $('#setExcelSheet').value = p.excel_sheet || 'Netmera'; excelModeFields();
+  $('#setSource').innerHTML = Object.entries(C.sources).map(([k, v]) => `<option value="${k}" ${k === p.source ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  $('#setBrowser').innerHTML = Object.entries(C.browsers).map(([k, v]) => `<option value="${k}" ${k === p.browser ? 'selected' : ''}>${esc(v)}</option>`).join('');
+  $('#setTimeout').value = p.timeout_seconds; $('#setDelay').value = p.step_delay_ms; $('#setHeadless').checked = p.headless;
+  $('#setCatchUp').value = p.catch_up_days ?? 7; $('#setNotify').checked = !!p.notify;
+  $('#onErrorRadios').innerHTML = Object.entries(C.on_error).map(([k, v]) => `<label><input type="radio" name="onerr" value="${k}" ${k === p.on_error ? 'checked' : ''}> ${esc(v)}</label>`).join('');
+  $('#settingsErr').textContent = '';
+  renderMappings(p.excel_mappings||[]);
+  renderGoogle();
+  renderLoginSettings(S.login_config);
+}
+function renderLoginSettings(info,fields=true){
+  const available=!!info?.available;
+  $('#loginConfigCard').classList.toggle('hidden',!available);
+  if(!available) return;
+  if(fields){
+    $('#loginUsername').value=info.username || ''; $('#loginPassword').value='';
+    $('#loginEnabled').checked=!!info.enabled; $('#loginKeep').checked=info.keep_logged_in !== false;
+    $('#loginPassword').placeholder=info.has_credentials ? 'Kayıtlı şifreyi korumak için boş bırak' : 'İlk kayıtta şifreni gir';
+    $('#loginPasswordHint').textContent=info.has_credentials ? 'Kayıtlı şifre var; burada gösterilmez.' : 'İlk kayıtta e-posta ve şifre gerekli.';
+  }
+  $('#loginConfigPath').textContent=info.path || '';
+  let state=info.error || (info.ready ? 'Otomatik giriş ayarı hazır. Hesap ve şifre ilk girişte doğrulanır.' : info.enabled ? 'Giriş bilgileri eksik.' : 'Otomatik giriş kapalı.');
+  if(info.last_attempt?.at) state+=' Son deneme: '+new Date(info.last_attempt.at).toLocaleString('tr-TR')+' · '+(info.last_attempt.state==='success' ? 'başarılı' : info.last_attempt.state==='attempting' ? 'başlatıldı' : 'tamamlanmadı');
+  $('#loginConfigStatus').textContent=state;
+  $('#saveLoginConfigBtn').disabled=!info.supported;
+  $('#loginConfigErr').textContent='';
+}
+async function refreshLoginSettings(){
+  if(S?.profile.source!=='netmera') return;
+  const pid=S.profile.id, r=await api('/api/login-config/status?profile='+encodeURIComponent(pid));
+  if(S.profile.id===pid){ S.login_config=r.login_config; renderLoginSettings(r.login_config,false); }
+}
+$('#saveLoginConfigBtn').onclick=async()=>{
+  const button=$('#saveLoginConfigBtn'); button.disabled=true;
+  const fields={profile_id:S.profile.id,enabled:$('#loginEnabled').checked,keep_logged_in:$('#loginKeep').checked,
+                username:$('#loginUsername').value,password:$('#loginPassword').value};
+  $('#loginPassword').value='';
+  try { const r=await api('/api/login-config/save',fields); S.login_config=r.login_config; renderLoginSettings(r.login_config); toast('Giriş ayarları korumalı kaydedildi.'); }
+  catch(e){ $('#loginConfigErr').textContent=e.message; }
+  finally { fields.password=''; $('#loginPassword').value=''; button.disabled=false; }
+};
+$('#clearLoginConfigBtn').onclick=()=>guard(async()=>{
+  if(!confirm('Bu projenin kayıtlı giriş bilgileri temizlensin ve otomatik giriş kapatılsın mı?')) return;
+  const r=await api('/api/login-config/clear',{profile_id:S.profile.id}); S.login_config=r.login_config; renderLoginSettings(r.login_config); toast('Giriş bilgileri temizlendi.');
+});
+$('#refreshLoginConfigBtn').onclick=()=>guard(refreshLoginSettings);
+$('#openLoginConfigBtn').onclick=()=>guard(()=>api('/api/open',{profile_id:S.profile.id,what:'login_config'}));
+function settingsProfile(){
+  const p = structuredClone(S.profile);
+  Object.assign(p, {name: $('#setName').value, source: $('#setSource').value, netmera_app: $('#setApp').value, output_file: $('#setOutput').value,
+    excel_mode:$('#setExcelMode').value,excel_sheet:$('#setExcelSheet').value,excel_mappings:readMappings(),
+    output_target:$('#setOutputTarget').value,sheets_id:$('#setSheets').value,
+    browser: $('#setBrowser').value, timeout_seconds: parseInt($('#setTimeout').value, 10), step_delay_ms: parseInt($('#setDelay').value, 10), headless: $('#setHeadless').checked,
+    catch_up_days: parseInt($('#setCatchUp').value || '0', 10), notify: $('#setNotify').checked,
+    on_error: ($('input[name=onerr]:checked') || {}).value});
+  return p;
+}
+$('#saveSettingsBtn').onclick = () => guard(async () => {
+  try { await saveProfile(settingsProfile(), 'Ayarlar kaydedildi.'); } catch(e) { $('#settingsErr').textContent = e.message; return; }
+  if (S.profile.output_target === 'google_sheets' && S.profile.sheets_id) await checkGoogle();
+});
+function excelModeFields(){
+  const google=$('#setOutputTarget').value==='google_sheets';
+  $('#setOutputWrap').classList.toggle('hidden',google);$('#setSheetsWrap').classList.toggle('hidden',!google);
+  // Hesaplama işi Google Sheet'ten okuyorsa çıktı yerel Excel olsa da Google bağlantısı gerekir.
+  const reads=S.profile.jobs.some(j=>j.type==='formula'&&j.variables.some(v=>v.kind==='cell'&&(v.source==='google_sheets'||(v.source==='output'&&google)))
+    || j.type==='segment_run'&&(j.items||[]).flatMap(it=>it.kind==='group'?it.rules:[it]).some(r=>(r.attributes||[]).some(a=>a.value_source?.source==='google_sheets')));
+  $('#googleCard').classList.toggle('hidden',!(google||reads));
+  for(const opt of $('#setExcelMode').options)opt.disabled=google&&opt.value!=='mapped_cells';
+  if(google)$('#setExcelMode').value='mapped_cells';
+  const mode = $('#setExcelMode').value;
+  $('#setExcelSheetWrap').classList.toggle('hidden',!['append_rows','new_sheet'].includes(mode));
+  $('#cellMappingCard').classList.toggle('hidden',mode!=='mapped_cells');
+  $('#excelSheetLabel').textContent = mode === 'new_sheet' ? 'Yeni sayfa adı başlangıcı' : 'Hedef sayfa adı';
+  $('#excelModeHint').textContent = mode === 'mapped_cells' ? 'Yalnız eşlenen hücrelere yazılır. Formül, koruma ve belirsiz tarihte yazım durur. Günlük kayma rapor tarihinden hesaplanır.' : mode === 'rebuild' ? 'Gunluk ve Sonuclar raporu güncellenir; yalnız uygulamanın rapor dosyası kullanılır.' : mode === 'append_rows' ? 'Her çalışma bir yeni satır olur. Dosya veya sayfa yoksa oluşturulur; başlıkları eşleşen mevcut sayfaya eklenir.' : 'Her çalışmaya tarih ve saat içeren ayrı bir sayfa açılır.';
+}
+$('#setExcelMode').onchange = excelModeFields;
+$('#setOutputTarget').onchange=excelModeFields;
+function addMapping(m={}){
+  const row=document.createElement('div');row.className='card mapping-row';row.style.marginTop='12px';
+  const options=S.profile.jobs.flatMap(j=>(j.columns||[null]).map(c=>`<option value="${esc(JSON.stringify([j.id,c]))}">${esc(c&&c!=='All Total'?j.label+' ['+c+']':j.label)}${j.enabled?'':' (kapalı)'}</option>`)).join('');
+  row.innerHTML=`<div class="grid2"><label class="f">İş sonucu<select data-m="result">${options}</select></label><label class="f">Hedef sayfa<input type="text" data-m="sheet" maxlength="31"></label><label class="f">Yerleştirme<select data-m="mode"><option value="fixed_cell">Sabit hücre</option><option value="date_row">Tarih satırını bul</option><option value="daily_shift">Güne göre kaydır (+1)</option><option value="header_lookup">Başlık satırında bul (tarih veya gün no yatay)</option></select></label><label class="f" data-wrap="cell">Hücre<input type="text" data-m="cell" placeholder="B4"></label><label class="f" data-wrap="date_column">Tarih sütunu<input type="text" data-m="date_column" placeholder="A"></label><label class="f" data-wrap="value_column">Sonuç sütunu<input type="text" data-m="value_column" placeholder="B"></label><label class="f" data-wrap="header_row">Başlık satırı<input type="number" min="1" data-m="header_row" placeholder="13"><small>Tarihlerin veya 1–31 gün numaralarının yazılı olduğu satır.</small></label><label class="f" data-wrap="value_row">Yazılacak satır<input type="number" min="1" data-m="value_row" placeholder="14"><small>Sonucun yazılacağı satır; sütunu başlıktaki gün belirler.</small></label><label class="f" data-wrap="month_first"><span>Tarih yazımı</span><select data-m="month_first"><option value="">Gün önce (17.10.2026, 05/10/2026 = 5 Ekim)</option><option value="1">Ay önce — Amerikan (10/17/2026, 05/10/2026 = 10 Mayıs)</option></select><small>Gerçek tarih hücrelerinde önemsizdir. Metin tarihlerde satırda 10/17 gibi kesin örnek varsa kendisi anlar.</small></label><label class="f" data-wrap="month_cell">Ay adı kontrol hücresi (isteğe bağlı)<input type="text" data-m="month_cell" placeholder="A82"><small>Doluysa bu hücrede ayın adı (ör. Ekim) yazmıyorsa yazılmaz.</small></label><label class="f" data-wrap="base_cell">Başlangıç hücresi<input type="text" data-m="base_cell" placeholder="B4"></label><label class="f" data-wrap="base_date">Başlangıç tarihi<input type="date" data-m="base_date"></label><label class="f" data-wrap="direction">Her gün<select data-m="direction"><option value="down">+1 satır aşağı (B4 → B5)</option><option value="right">+1 sütun sağa (B4 → C4)</option><option value="both">İkisi birlikte (B4 → C5)</option></select></label><label class="f" data-wrap="date_basis">Hangi güne göre?<select data-m="date_basis"><option value="data_day">Verinin günü (eventte tek gün; diğerlerinde çekim günü)</option><option value="run_day">Çalışmanın başladığı gün</option><option value="previous_day">Çalışma gününden bir önceki gün (anlık sayılar: People/Tag/Segment)</option></select></label></div><div class="row" style="margin-top:10px"><button type="button" class="btn small danger" data-remove>Eşlemeyi kaldır</button></div>`;
+  const get=k=>row.querySelector(`[data-m="${k}"]`);
+  for(const [k,v] of Object.entries({sheet:m.sheet||'Rapor',mode:m.mode||'fixed_cell',cell:m.cell||'B4',date_column:m.date_column||'A',value_column:m.value_column||'B',base_cell:m.base_cell||'B4',base_date:m.base_date||'',date_basis:m.date_basis||'data_day',direction:m.column_step?(m.row_step?'both':'right'):'down',header_row:m.header_row??'',value_row:m.value_row??'',month_cell:m.month_cell||'',month_first:m.month_first?'1':''}))get(k).value=v;
+  if(m.job_id)get('result').value=JSON.stringify([m.job_id,m.column??null]);
+  const fields=()=>{const mode=get('mode').value;for(const e of row.querySelectorAll('[data-wrap]')){const k=e.dataset.wrap;e.classList.toggle('hidden',k==='cell'?mode!=='fixed_cell':['date_column','value_column'].includes(k)?mode!=='date_row':['base_cell','base_date','direction'].includes(k)?mode!=='daily_shift':['header_row','value_row','month_cell'].includes(k)?mode!=='header_lookup':k==='month_first'?!['header_lookup','date_row'].includes(mode):mode==='fixed_cell');}};
+  get('mode').onchange=fields;fields();row.querySelector('[data-remove]').onclick=()=>{row.remove();$('#mappingPreview').textContent='Eşleme değişti; yeniden önizle.';};
+  row.oninput=()=>$('#mappingPreview').textContent='Eşleme değişti; yeniden önizle.';
+  $('#mappingRows').append(row);
+}
+function renderMappings(mappings){$('#mappingRows').innerHTML='';$('#mappingPreview').textContent='Önce Test et, sonra son sonuçlarla hedefi önizle.';for(const m of mappings)addMapping(m);}
+function readMappings(){return $$('#mappingRows .mapping-row').map(row=>{const v=k=>row.querySelector(`[data-m="${k}"]`).value;const [job_id,column]=JSON.parse(v('result'));const m={job_id,column,sheet:v('sheet'),mode:v('mode')};if(m.mode==='fixed_cell')m.cell=v('cell');else{m.date_basis=v('date_basis');if(['date_row','header_lookup'].includes(m.mode)&&v('month_first'))m.month_first=true;if(m.mode==='date_row'){m.date_column=v('date_column');m.value_column=v('value_column');}else if(m.mode==='header_lookup'){m.header_row=v('header_row')===''?null:Number(v('header_row'));m.value_row=v('value_row')===''?null:Number(v('value_row'));m.month_cell=v('month_cell').trim()||null;}else{m.base_cell=v('base_cell');m.base_date=v('base_date');m.row_step=v('direction')==='right'?0:1;m.column_step=v('direction')==='down'?0:1;}}return m;});}
+$('#addMappingBtn').onclick=()=>addMapping();
+$('#previewMappingBtn').onclick=()=>guard(async()=>{try{const r=await api('/api/excel/preview',{profile:settingsProfile()});$('#mappingPreview').innerHTML=`<p><b>Önizleme; hiçbir hücre yazılmadı.</b> Hazır: ${r.ready}, hata: ${r.errors}</p>`+r.items.map(i=>`<p>${esc(i.job)}${i.period?' · '+esc(fmtDay(i.period)):''} → ${esc(i.sheet)}!${esc(i.cell||'?')} · ${i.status==='ready'?esc(String(i.value)):esc(i.message)}</p>`).join('');}catch(e){$('#mappingPreview').textContent=e.message;}});
+// ---- Ortak Google hesabının proje dosyasına erişimi; hesap yönetimi ortak sayfadadır ----
+let googleNote = null, googleCheck = null, googleFor = null, googleBusy = false, workerBusy = false, googleLine = '';
+function renderGoogle(){
+  if (!S) return;
+  const p = S.profile, g = S.google || {}, demo = p.source === 'demo';
+  if (googleFor !== p.id) { googleNote = null; googleCheck = null; googleFor = p.id; }
+  const checked = !!(g.connected && googleCheck && googleCheck.sheets_id === p.sheets_id);
+  const done = {sheet: p.output_target === 'google_sheets' && !!p.sheets_id, client: !!g.configured, connect: !!g.connected, check: checked};
+  $('#checkGoogleBtn').disabled = demo || workerBusy || !g.connected || !$('#setSheets').value.trim();
+  const pill = $('#googlePill');
+  [pill.className, pill.textContent] = checked ? ['pill ok','Hazır'] : g.connected ? ['pill ok','Bağlı'] : g.expired ? ['pill err','Süresi doldu']
+    : g.configured ? ['pill run','Hesap bağlanmadı'] : ['pill','Kurulmadı'];
+  let kind = '', html = '';
+  if (demo) html = '<p>Demo projesi Google’a bağlanmaz. <b>Veri kaynağı</b>nı Netmera seçip <b>Ayarları kaydet</b>.</p>';
+  else if (googleBusy) { kind = 'run'; html = '<p><b>Tarayıcında Google izin ekranı açıldı.</b> Hesabını seç, Google E-Tablolar iznini işaretle ve Devam’a bas (3 dakika içinde). Ekran açılmadıysa Vazgeç’e basıp yeniden dene.</p>' + (googleLine ? `<p>${esc(googleLine)}</p>` : ''); }
+  else if (googleNote) { kind = googleNote.kind; html = `<p>${esc(googleNote.text)}</p>`; }
+  else if (checked) {
+    const r = googleCheck; kind = r.missing_sheets.length ? 'err' : 'ok';
+    html = `<p><b>✓ Dosyaya erişildi:</b> “${esc(r.title || 'adsız dosya')}”. Sayfalar: ${esc(r.sheets.join(', ') || '—')}.</p>`
+      + (r.missing_sheets.length ? `<p><b>Eşlemedeki şu sayfa dosyada yok:</b> ${esc(r.missing_sheets.join(', '))}. Sayfa adını Sheets’teki sekme adıyla aynı yaz.</p>` : '')
+      + '<p>Düzenleme yetkisi ilk yazımda kontrol edilir. Bu kontrol hiçbir hücreye yazmadı.</p>';
+  }
+  else { kind = g.connected ? 'ok' : g.expired ? 'err' : ''; html = `<p>${esc(g.message || '')}</p>`; }
+  $('#googleStatus').className = 'gstatus' + (kind ? ' ' + kind : ''); $('#googleStatus').innerHTML = html;
+  // Rehber sekmesindeki B bölümü aynı durumu gösterir.
+  const texts = {
+    sheet: done.sheet ? '✓ Dosya bağlantısı kayıtlı.' : 'Bekliyor: dosya bağlantısını yapıştırıp Ayarları kaydet.',
+    client: done.client ? '✓ OAuth dosyası alındı.' : 'Bekliyor.',
+    connect: done.connect ? '✓ Google hesabı bağlı.' : g.expired ? 'Süresi doldu: yeniden bağla.' : 'Bekliyor.',
+    check: checked ? `✓ Doğrulandı: “${googleCheck.title || 'adsız dosya'}”.` : 'Bekliyor.'};
+  const guideNow = ['sheet','client','connect','check'].find(k => !done[k]);
+  $$('[data-gstate]').forEach(el => { const k = el.dataset.gstate; el.classList.toggle('done', done[k]); el.classList.toggle('now', k === guideNow); });
+  $$('[data-gstate-text]').forEach(el => el.textContent = texts[el.dataset.gstateText]);
+  const names = {sheet:'Dosya bağlantısı', client:'OAuth dosyası', connect:'Google hesabı', check:'Doğrulama'};
+  $('#gProgress').innerHTML = '<b style="align-self:center;font-size:12.5px">Bu projede (B bölümü):</b>' + Object.keys(names).map((k, i) => `<span class="${done[k] ? 'done' : ''}"><i>${done[k] ? '✓' : i + 6}</i>${names[k]}</span>`).join('');
+}
+async function refreshGoogleState(){
+  const pid = S.profile.id, r = await api('/api/google/status?profile=' + encodeURIComponent(pid));
+  if (S.profile.id !== pid) return;
+  if (!r.google.connected || S.google?.account !== r.google.account) { googleCheck = null; googleNote = null; }
+  Object.assign(S, {google: r.google, readiness: r.readiness});
+  renderReady(); renderGoogle();
+}
+async function checkGoogle(){
+  if (!S.google?.connected || S.profile.source !== 'netmera' || !$('#setSheets').value.trim()) return;
+  googleNote = {kind: 'run', text: 'Google’dan dosya bilgisi okunuyor…'}; renderGoogle(); $('#checkGoogleBtn').disabled = true;
+  try {
+    const r = await api('/api/google/check', {profile: settingsProfile()});
+    googleCheck = r; googleNote = null;
+    if (r.sheets_id !== S.profile.sheets_id) googleNote = {kind: 'run', text: `Dosyaya erişildi (“${r.title || 'adsız dosya'}”), ama bu bağlantı henüz kaydedilmedi. “Ayarları kaydet”e bas.`};
+  } catch(e) { googleCheck = null; googleNote = {kind: 'err', text: e.message}; }
+  await refreshGoogleState();
+}
+$('#goGoogleSettingsBtn').onclick = () => { location.hash = '#/ga4/baglanti'; };
+$('#checkGoogleBtn').onclick = () => guard(checkGoogle);
+$('#notifyTestBtn').onclick = () => guard(async () => { const r = await api('/api/notify/test', {}); toast(r.shown ? 'Bildirim Windows’a gönderildi. Sağ altta görmediysen şirket ayarı veya odak modu gizliyor olabilir.' : 'Windows bildirimi gösterilemedi; bu bilgisayarda kapalı olabilir. Çalışmalar etkilenmez.', !r.shown); });
+$('#pickBtn').onclick = () => guard(async () => { toast('Dosya seçme penceresi açılıyor…'); const r = await api('/api/pick-file', {current: $('#setOutput').value}); if (r.path) $('#setOutput').value = r.path; });
+$('#catalogBtn').onclick = () => guard(async () => { await api('/api/catalog', {profile_id: S.profile.id}); switchTab('run'); poll(true); });
+$('#copyProfileBtn').onclick = () => guard(async () => { const name = prompt('Yeni proje adı:', S.profile.name + ' (kopya)'); if (!name) return; const r = await api('/api/profile/create', {name, source: S.profile.source, copy_from: S.profile.id}); await load(r.profile_id, 'project'); switchTab('settings'); toast('Kopyalandı. Excel dosyasını ayrıca seç.'); });
+$('#deleteProfileBtn').onclick = () => guard(() => deleteProject(S.profile.id, S.profile.name));
+$('#newProfileBtn').onclick = () => { $('#npSource').innerHTML = Object.entries(C.sources).map(([k, v]) => `<option value="${k}">${esc(v)}</option>`).join(''); $('#npName').value = ''; $('#npErr').textContent = ''; $('#profileDlg').showModal(); $('#npName').focus(); };
+$('#npSaveBtn').onclick = async () => { try { const r = await api('/api/profile/create', {name: $('#npName').value, source: $('#npSource').value}); $('#profileDlg').close(); await load(r.profile_id, 'project'); switchTab('settings'); toast('Proje oluşturuldu. Ayarları tamamla.'); } catch(e) { $('#npErr').textContent = e.message; } };
+
+// ---- zamanlama ----
+function renderSchedule(){
+  const sc = S.profile.schedule;
+  $('#taskNameInput').value = sc.name || `${S.profile.name} günlük raporu`; taskNamePreview();
+  $('#relatedTasks').textContent = 'Bu projenin görevlerini görmek için durumu yenile.';
+  $('#timeChips').innerHTML = sc.times.map(t => `<span class="chip">${esc(t)}<button data-rmtime="${esc(t)}" title="Kaldır">×</button></span>`).join('') || '<span class="hint">Saat yok.</span>';
+  $('#dayChecks').innerHTML = C.days.map(d => `<label><input type="checkbox" value="${d}" ${sc.days.includes(d) ? 'checked' : ''}> ${DAY_TR[d]}</label>`).join('');
+}
+function taskNamePreview(){ $('#taskNamePreview').textContent = `Netmera - ${$('#taskNameInput').value.trim() || S.profile.name + ' günlük raporu'} (${S.profile.id})`; }
+$('#taskNameInput').oninput = taskNamePreview;
+function scheduleDraft(){ const p = structuredClone(S.profile); p.schedule.days = $$('#dayChecks input:checked').map(i => i.value); p.schedule.name = $('#taskNameInput').value.trim(); return p; }
+$('#addTimeBtn').onclick = () => guard(async () => { const p = scheduleDraft(); const t = $('#timeInput').value; if (!t) return; p.schedule.times = [...new Set([...p.schedule.times, t])]; await saveProfile(p, 'Saat eklendi. Görevi kurmayı unutma.'); });
+$('#timeChips').addEventListener('click', e => guard(async () => { const b = e.target.closest('[data-rmtime]'); if (!b) return; const p = scheduleDraft(); p.schedule.times = p.schedule.times.filter(t => t !== b.dataset.rmtime); await saveProfile(p, 'Saat kaldırıldı. Görevi yeniden kur.'); }));
+let taskMutating = false;
+async function taskMutation(fn){
+  if (taskMutating) return; taskMutating=true;
+  ['#installBtn','#resetTaskBtn','#removeTaskBtn','#runTaskBtn'].forEach(s => $(s).disabled=true);
+  try { await guard(fn); } finally {
+    taskMutating=false; ['#installBtn','#resetTaskBtn','#removeTaskBtn'].forEach(s => $(s).disabled=false); refreshTask();
+  }
+}
+$('#installBtn').onclick = () => taskMutation(async () => { const profile = scheduleDraft(); await saveProfile(profile); const r = await api('/api/schedule/install', {profile_id: profile.id}); toast('Görev kuruldu: ' + r.task); });
+async function taskActionPlan(action, pid = S.profile.id){
+  const info = await api('/api/schedule/status?profile=' + encodeURIComponent(pid));
+  if (S.profile.id !== pid || requestedProfile !== pid) return false;
+  if (info.installed === null) throw new Error('Görev kayıtları okunamadı; silme veya temizlik yapılmadı.');
+  const tasks = info.related_tasks || [];
+  if (tasks.some(t => [2,4].includes(t.state))) throw new Error('Görev çalışıyor veya sırada. Bitince tekrar dene.');
+  const list = tasks.length ? tasks.map(t => '• ' + t.name).join('\n') : 'Bu proje için kaldırılacak eski görev yok.';
+  return confirm(`${action}\n\n${list}\n\nİşler, saatler, Excel ve Netmera oturumu korunur.`);
+}
+$('#removeTaskBtn').onclick = () => taskMutation(async () => {
+  const pid = S.profile.id;
+  if (!await taskActionPlan('Listelenen Windows görevleri silinsin mi?', pid)) return;
+  const r = await api('/api/schedule/remove', {profile_id: pid}); toast(r.removed ? 'Bu projenin görevleri silindi.' : 'Silinecek görev bulunamadı.'); refreshTask();
+});
+$('#resetTaskBtn').onclick = () => taskMutation(async () => {
+  const profile = scheduleDraft(); await saveProfile(profile);
+  if (!await taskActionPlan('Eski görevler temizlenip seçtiğin ad ve saatlerle baştan oluşturulsun mu?', profile.id)) return;
+  const r = await api('/api/schedule/reset',{profile_id:profile.id}); toast(`${r.removed} eski kayıt temizlendi. Yeni görev: ${r.task}`); refreshTask();
+});
+async function refreshTask(){
+  if (taskFetching) return; taskFetching = true;
+  const pid = S.profile.id;
+  try { const r = await api('/api/schedule/status?profile=' + encodeURIComponent(pid));
+    if (S.profile.id !== pid) return;
+    const states = {0:'Bilinmiyor',1:'Devre dışı',2:'Sırada',3:'Hazır',4:'Çalışıyor'};
+    $('#taskPill').className = 'pill ' + (r.installed && r.path_matches && r.enabled && !r.needs_cleanup ? 'ok' : r.error || r.installed ? 'err' : '');
+    $('#taskPill').textContent = r.installed === null ? 'Durum okunamadı' : r.installed ? (r.needs_cleanup ? 'Eski/çoklu kayıt: temizle ve baştan oluştur' : r.path_matches ? r.enabled ? 'Görev kurulu' : 'Görev devre dışı' : 'Eski klasör: görevi yeniden kur') : 'Kurulu değil';
+    const related = r.related_tasks || [];
+    $('#relatedTasks').textContent = related.length ? 'Bu projenin Windows görevleri: ' + related.map(t => t.name + (t.path_matches ? ' · bu klasör' : ' · farklı/eski klasör')).join(' | ') : 'Bu projeye ait doğrulanmış Windows görevi bulunamadı.';
+    if (r.conflicts?.length) $('#relatedTasks').textContent += ' Kimliği doğrulanamayan kayıtlar temizlenmez: ' + r.conflicts.join(', ');
+    const fmt = value => value ? new Date(value).toLocaleString('tr-TR') : 'Henüz yok';
+    const cells = [['Windows görev durumu',r.installed ? states[r.state] || 'Bilinmiyor' : '—'],['Son Windows çalışması',fmt(r.last_run)],['Sonraki Windows çalışması',fmt(r.next_run)],['Windows sonuç kodu',r.result_hex ? r.result_hex + (r.result_hex === '0x00041303' ? ' · Henüz çalıştırılmadı' : r.result_hex === '0x00000006' ? ' · Çıktıya yazılamadı' : '') : '—']];
+    $('#taskDetails').innerHTML = cells.map(([label,value]) => `<div class="status-item"><small>${esc(label)}</small><strong>${esc(value)}</strong></div>`).join('');
+    const last = r.last_scheduled;
+    let text = r.error || 'Bu uygulama henüz zamanlanmış bir çalışmayı tamamladığını kaydetmedi. Görevin kurulu olması, çalıştığı anlamına gelmez.';
+    if (last) {
+      const labels = {success:'Başarılı',partial:'Bazı işler hatalı',excel_error:'Çıktıya yazılamadı',error:'Çalışma hatası',running:r.state === 4 ? 'Çalışıyor' : 'Tamamlanma kaydı yok; çalışma kesilmiş olabilir'};
+      text = `Uygulama kaydı: ${labels[last.status] || 'Bilinmiyor'} · Başlangıç: ${fmt(last.started_at)}`;
+      if (last.completed_at) text += ` · Bitiş: ${fmt(last.completed_at)}`;
+      if (last.ok !== undefined) text += ` · ${last.ok} başarılı, ${last.failed} hatalı`;
+      if (last.excel) text += ` · ${last.excel}`;
+      if (last.error) text += ` · ${last.error}`;
+      if (r.last_run && last.completed_at && new Date(r.last_run) > new Date(last.completed_at)) text += ' · Windows’ta daha yeni bir başlatma var; bu kayıt o çalışmanın tamamlandığını doğrulamaz.';
+    }
+    $('#scheduledReceipt').textContent = text;
+    $('#runTaskBtn').disabled = taskMutating || !r.installed || !r.path_matches || !r.enabled || r.needs_cleanup || [2,4].includes(r.state);
+  }
+  catch(e) { if (S.profile.id !== pid) return; $('#taskPill').textContent = 'Durum okunamadı'; $('#taskPill').className='pill err'; $('#scheduledReceipt').textContent=e.message; $('#runTaskBtn').disabled=true; }
+  finally { taskFetching = false; }
+}
+let taskFetching = false;
+$('#refreshTaskBtn').onclick = refreshTask;
+$('#runTaskBtn').onclick = () => guard(async () => { await api('/api/schedule/run',{profile_id:S.profile.id}); toast('Windows’a başlatma isteği gönderildi. Sonucu bu ekrandan takip edebilirsin.'); refreshTask(); });
+setInterval(() => { if (S && view === 'project' && !document.hidden && !$('[data-panel="schedule"]').classList.contains('hidden')) refreshTask(); },15000);
+
+// ---- çalıştırma ----
+async function startRun(opts){
+  const dates = $('#runStart').value ? {date_start: $('#runStart').value, date_end: $('#runEnd').value || $('#runStart').value} : {};
+  const split = $('#splitChk').checked;  // Test et'te de çalışır: günler gösterilir, yazılmaz
+  if ($('#splitChk').checked && !dates.date_start) throw new Error('Günlere bölmek için başlangıç ve bitiş tarihini seç.');
+  await api('/api/run', {profile_id: S.profile.id, write: true, watch: $('#watchChk').checked, ...dates, ...opts, ...(split ? {split_days: true} : {})});
+  poll(true);
+}
+$('#runBtn').onclick = () => guard(() => startRun({write: true}));
+$('#runDateClear').onclick = () => { $('#runStart').value = ''; $('#runEnd').value = ''; $('#splitChk').checked = false; };
+(() => { ['#runStart', '#runEnd'].forEach(s => $(s).max = new Date().toISOString().slice(0, 10)); })();
+$('#testBtn').onclick = () => guard(() => startRun({write: false}));
+$('#cancelBtn').onclick = () => guard(async () => { await api('/api/cancel', {}); toast('Durdurma isteği gönderildi; mevcut adım bitince durur.'); });
+$('#loginBtn').onclick = () => guard(async () => { await api('/api/login', {profile_id: S.profile.id}); poll(true); });
+$('#rebuildBtn').onclick = () => guard(async () => { $('#writeRetryInfo').textContent=''; const r=await api('/api/excel/rebuild', {profile_id: S.profile.id}); $('#writeRetryInfo').textContent=[r.message,...(r.notes||[])].join(' '); toast(r.message); });
+$('#diagBtn').onclick = () => guard(async () => {
+  const r = await api('/api/diagnostics?profile=' + encodeURIComponent(S.profile.id));
+  $('#diagText').value = JSON.stringify({kayitlar:r.items.map(i => i.data), istek_sureleri:r.performance || []}, null, 1);
+  $('#diagInfo').textContent = `${r.items.length} kayıt (en yeni 8)`;
+  $('#diagDlg').showModal();
+});
+$('#diagCopyBtn').onclick = () => guard(async () => {
+  try { await navigator.clipboard.writeText($('#diagText').value); } catch(e) { $('#diagText').select(); document.execCommand('copy'); }
+  toast('Kopyalandı.');
+});
+$$('#diagDlg [data-close]').forEach(b => b.onclick = () => $('#diagDlg').close());
+$$('[data-open]').forEach(b => b.onclick = () => guard(() => api('/api/open', {profile_id: S.profile.id, what: b.dataset.open})));
+
+const TASK_TR = {run: 'Çalışma', login: 'Giriş', catalog: 'Event listesi', segment_rules: 'Segment kuralları', google:'Google bağlantısı'};
+let wasBusy = false, pollRunning = false;
+async function poll(){
+  if (pollRunning) return;
+  pollRunning = true;
+  clearTimeout(pollTimer);
+  try {
+    const st = await api('/api/status');
+    const busy = st.busy;
+    $('#statusPill').className = 'pill ' + (busy ? 'run' : st.error ? 'err' : 'ok');
+    $('#statusPill').textContent = busy ? (TASK_TR[st.task] || 'İşlem') + ' sürüyor…' : st.error ? 'Son işlem hatalı' : 'Hazır';
+    ['#runBtn', '#testBtn', '#loginBtn', '#catalogBtn'].forEach(s => $(s).disabled = busy || (s === '#loginBtn' && S.profile.source === 'demo'));
+    $('#cancelBtn').classList.toggle('hidden', !busy);
+    $('#taskName').textContent = st.task ? (TASK_TR[st.task] || st.task) + (busy ? ' · sürüyor' : ' · bitti') : '';
+    const text = st.lines.join('\n');
+    if (text !== lastLines) { const c = $('#console'); const stick = c.scrollTop + c.clientHeight >= c.scrollHeight - 30; c.textContent = text || 'Henüz işlem yok.'; if (stick) c.scrollTop = c.scrollHeight; lastLines = text; }
+    const googleTask = st.task === 'google';
+    workerBusy = busy; googleBusy = busy && googleTask;
+    if (googleBusy) googleLine = st.lines.at(-1) || '';
+    if (wasBusy && !busy && googleTask) {
+      // Ayarlar formunu yeniden çizme: kaydedilmemiş alanlar kaybolmasın.
+      googleNote = st.error ? {kind: 'err', text: st.error.replace(/^✗\s*/, '')} : {kind: 'ok', text: '✓ Google hesabı bağlandı. Son adım: “Bağlantıyı doğrula”.'};
+      await refreshGoogleState();
+      if (!st.error) await checkGoogle();  // bağlanınca dosyayı kendiliğinden doğrula
+    } else if (wasBusy && !busy && st.profile_id === S.profile.id && requestedProfile === S.profile.id) {
+      if (!pendingToggles.size && !$('#jobDlg').open && activeTab !== 'settings') await load(S.profile.id);
+      else resultsDirty = true;
+    }
+    else renderGoogle();
+    wasBusy = busy;
+    pollTimer = setTimeout(poll, busy ? 900 : 4000);
+  } catch(e) { pollTimer = setTimeout(poll, 5000); }
+  finally { pollRunning = false; }
+}
+function fmtDay(iso){ return iso ? new Date(iso).toLocaleDateString('tr-TR') : ''; }
+function renderLastRun(run){
+  $('#writeRetryInfo').textContent='';
+  if (run?.history_deferred) {
+    $('#resBody').innerHTML = '<tr><td colspan="5">Önceki büyük rapor arşivde saklı. <button class="btn small" id="loadPreviousRun" type="button">Son sonuçları yükle</button></td></tr>';
+    $('#lastRunInfo').textContent = 'Büyük rapor proje geçişinde yüklenmez.';
+    $('#loadPreviousRun').onclick = () => guard(async () => {
+      const pid = S.profile.id, r = await api('/api/last-run?profile=' + encodeURIComponent(pid));
+      if (S.profile.id === pid) { S.last_run = r.last_run; renderLastRun(r.last_run); }
+    });
+    return;
+  }
+  if (!run || !run.rows) { $('#resBody').innerHTML = '<tr><td colspan="5" class="hint">Henüz çalışma yok.</td></tr>'; $('#lastRunInfo').textContent = ''; return; }
+  // Normal sonuçlar + günlere bölünmüş / kaçan günlerin satırları (her biri kendi tarihiyle).
+  const allRows = [...run.rows, ...(run.day_rows || [])].sort((a, b) => (a.job_label || '').localeCompare(b.job_label || '', 'tr') || String(a.period_start || '').localeCompare(String(b.period_start || '')));
+  $('#lastRunInfo').textContent = `${new Date(run.planned_at).toLocaleString('tr-TR')} · ${run.write ? 'normal çalışma' : 'TEST (çıktıya yazılmadı)'} · ${allRows.filter(r=>r.status==='OK').length} başarılı, ${allRows.filter(r=>r.status!=='OK').length} hatalı` + (run.catch_up ? ` · ${run.split ? 'günlere bölünmüş' : 'kaçan günler'}: ${run.catch_up.days.map(fmtDay).join(', ')} (${run.catch_up.ok} başarılı, ${run.catch_up.failed} hatalı)` : '') + (run.excel ? ' · ' + run.excel : '');
+  $('#resBody').innerHTML = allRows.map(r => {
+    let period = 'çekim anı';
+    if (r.period_start) { const end = new Date(new Date(r.period_end).getTime() - 1); const a = fmtDay(r.period_start), b = end.toLocaleDateString('tr-TR'); period = a === b ? a : `${a} – ${b}`; }
+    const ok = r.status === 'OK';
+    if (r.note) period += ' · ' + r.note.replace(/^çekim anı \((.*?)\)/, '$1');
+    return `<tr><td>${esc(r.job_label)}</td><td>${esc(r.column || '')}</td><td>${esc(period)}</td><td class="n">${ok ? Number(r.value).toLocaleString('tr-TR') : '—'}</td>
+      <td>${ok ? '<span class="pill ok">OK</span>' : `<span class="pill err" title="${esc(C.errors[r.status] || '')}">${esc(r.status)}</span>`}</td></tr>`;
+  }).join('');
+  if (run.preview_truncated) {
+    const offset = run.preview_offset || 0;
+    $('#lastRunInfo').textContent += ` · ${offset + 1}–${offset + allRows.length} / ${run.preview_total} sonuç gösteriliyor.`;
+    const footer = document.createElement('tr'), cell = document.createElement('td'); cell.colSpan = 5; footer.append(cell);
+    for (const [label, next, disabled] of [['Önceki sonuçlar', Math.max(0, offset - 200), offset === 0], ['Sonraki sonuçlar', offset + 200, offset + 200 >= run.preview_total]]) {
+      const button = document.createElement('button'); button.className = 'btn small'; button.textContent = label; button.disabled = disabled;
+      button.onclick = () => guard(async () => {
+        const pid = S.profile.id; button.disabled = true;
+        try { const r = await api('/api/last-run?profile=' + encodeURIComponent(pid) + '&offset=' + next); if (S.profile.id === pid) { S.last_run = r.last_run; renderLastRun(r.last_run); } }
+        finally { button.disabled = disabled; }
+      }); cell.append(button);
+    }
+    $('#resBody').append(footer);
+  }
+}
+
+// ---- sekmeler ----
+function switchTab(name){
+  activeTab = name;
+  if (name === 'settings' && !settingsDrawn) renderSettings();
+  if (name === 'run' && resultsDirty) guard(async () => {
+    const pid = S.profile.id, r = await api('/api/last-run?profile=' + encodeURIComponent(pid));
+    if (S.profile.id === pid) { S.last_run = r.last_run; resultsDirty = false; renderLastRun(r.last_run); }
+  });
+  $$('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  $$('section[data-panel]').forEach(s => s.classList.toggle('hidden', s.dataset.panel !== name));
+  if (name === 'schedule') refreshTask();
+  if (name === 'settings') guard(refreshLoginSettings);
+}
+$$('nav.tabs button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+$('#quitBtn').onclick = () => guard(async () => { if (!confirm('Arayüz kapatılsın mı? Zamanlanmış görevler çalışmaya devam eder.')) return; await api('/api/shutdown', {}); document.body.innerHTML = '<main><div class="card"><h2>Arayüz kapandı</h2><div class="hint">Bu sekmeyi kapatabilirsin. Yeniden açmak için NetmeraOtomasyonu.cmd.</div></div></main>'; });
+
+guard(async () => { await load(savedProfile(), 'projects'); poll(); });
+</script>
+</body>
+</html>

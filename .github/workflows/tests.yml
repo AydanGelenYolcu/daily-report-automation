@@ -1,0 +1,21 @@
+name: Synthetic checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt
+      - name: Validate generated UI
+        run: |
+          python tools/build_ui.py
+          git diff --exit-code -- netmera_automation/ui/index.html
+      - name: Test with synthetic data
+        run: python -X utf8 -m unittest tests.test_jobs tests.test_store tests.test_formula tests.test_project_transfer tests.test_cell_mapping

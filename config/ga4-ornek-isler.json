@@ -1,0 +1,82 @@
+{
+  "aciklama": "Sentetik örnek işler. property_ref yerel ayar dosyasındaki takma addır; gerçek property kimliği buraya yazılmaz.",
+  "isler": [
+    {
+      "ad": "Günlük aktif kullanıcı",
+      "property_ref": "PROP_PROD",
+      "metrikler": [
+        "activeUsers",
+        "newUsers"
+      ],
+      "tarih": {
+        "tur": "dun"
+      },
+      "kayit_yoksa_sifir": true
+    },
+    {
+      "ad": "Cihaza göre oturum",
+      "property_ref": "PROP_PROD",
+      "metrikler": [
+        "sessions",
+        "engagementRate"
+      ],
+      "boyutlar": [
+        "deviceCategory"
+      ],
+      "tarih": {
+        "tur": "dun"
+      }
+    },
+    {
+      "ad": "Son 7 gün mobil satın alma",
+      "property_ref": "PROP_PROD",
+      "metrikler": [
+        "eventCount",
+        "totalUsers"
+      ],
+      "filtreler": [
+        {
+          "alan": "eventName",
+          "operator": "EXACT",
+          "deger": "purchase"
+        },
+        {
+          "alan": "platform",
+          "operator": "IN_LIST",
+          "degerler": [
+            "Android",
+            "iOS"
+          ]
+        }
+      ],
+      "tarih": {
+        "tur": "son_n_gun",
+        "n": 7
+      }
+    },
+    {
+      "ad": "Kanala göre günlük kullanıcı",
+      "aciklama": "E-posta kanalı hariç, son 3 günün her günü ayrı satır.",
+      "property_ref": "PROP_PROD",
+      "metrikler": [
+        "activeUsers"
+      ],
+      "boyutlar": [
+        "date",
+        "sessionDefaultChannelGroup"
+      ],
+      "filtreler": [
+        {
+          "alan": "sessionDefaultChannelGroup",
+          "operator": "EXACT",
+          "deger": "Email",
+          "haric": true
+        }
+      ],
+      "tarih": {
+        "tur": "son_n_gun",
+        "n": 3
+      }
+    }
+  ]
+}

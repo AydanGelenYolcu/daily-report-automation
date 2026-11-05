@@ -1,0 +1,494 @@
+<!doctype html>
+<!-- SENTETİK test paneli. Gerçek Netmera DOM'u değildir. Prod'da 2026-10-16'da gözlenen YAPIYI
+     (adresler, etiketler, roller, Ant Design sınıfları, akış davranışları) taklit eder. Tüm sayılar uydurmadır. -->
+<html><head><meta charset="utf-8"><title>Sentetik Panel</title>
+<style>.ant-select-dropdown{border:1px solid #999;max-height:120px;overflow:auto;position:relative;z-index:5;background:#fff}
+.ant-select-dropdown-hidden,.hidden{display:none}.cover{pointer-events:none}</style></head>
+<body>
+<div class="app-subtitle_x1">Sentetik App</div>
+<input placeholder="Search" id="globalSearch">
+<nav><button>Analytics</button><button>Targeting</button></nav>
+<main id="screen"></main>
+<script>
+const EVENTS = ["Open App", "View Content", "view item", "view item list", "Install(First Open) App", ...Array.from({length: 40}, (_, i) => "Sentetik Event " + (i + 1))];
+const PROPS = {"View Content": ["Content Id"], "view item": ["item category", "item brand"], "view item list": ["Vertical"]};
+const VALUES = {"Content Id": ["Fikstür - test", "DemoCampaign-1"], "item category": ["Futbol", "DemoStore", "Müzik"], "Vertical": ["DemoCategory", "DemoStore", "Finans"]};
+const OPS = ["Equals", "Not Equal", "Contains", "In", "Not Exists", "Exists"];
+const COLS = ["All Total", "Mobile Total", "iOS", "Android", "Web Total", "SMS", "Email"];
+const $ = s => document.querySelector(s);
+const h = html => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; };
+function spin(ms, then) { const s = h('<div class="ant-spin ant-spin-spinning"></div>'); document.body.append(s); setTimeout(() => { s.remove(); then(); }, ms); }
+function closeDropdowns() { document.querySelectorAll('.ant-select-dropdown').forEach(d => d.remove()); }
+function dropdown(anchor, items, onPick) {
+  closeDropdowns();
+  const d = h('<div class="ant-select-dropdown"><div class="rc-virtual-list-holder" style="max-height:120px;overflow:auto"></div></div>');
+  items.forEach((it, i) => { const o = h(`<div class="ant-select-item ant-select-item-option ${i === 0 ? 'ant-select-item-option-active' : ''}"></div>`); o.textContent = it;
+    o.onmousedown = e => { e.preventDefault(); d.remove(); onPick(it); }; d.firstChild.append(o); });
+  // Prod'daki açılış animasyonu: kısa süre iki kopya görünür.
+  const ghost = d.cloneNode(true); ghost.classList.add('ant-slide-up-leave'); document.body.append(ghost); setTimeout(() => ghost.remove(), 250);
+  anchor.closest('.ant-select').after(d);
+}
+let selectSeq = 0;
+function select(items, onPick, cls = 'nm-select') {  // Ant Select: kap + arama kutusu (combobox), prod gibi rc_select_N kimliği
+  const w = h(`<div class="ant-select ${cls}"><span class="ant-select-selection-search"><input role="combobox" type="search" id="rc_select_${selectSeq++}"></span><span class="ant-select-selection-item"></span></div>`);
+  const i = w.querySelector('input'), shown = w.querySelector('.ant-select-selection-item');
+  const pick = v => { i.value = ''; shown.textContent = v; onPick(v); };
+  i.oninput = () => dropdown(i, items().filter(x => x.toLowerCase().includes(i.value.toLowerCase())), pick);
+  w.onclick = () => dropdown(i, items(), pick);
+  return w;
+}
+function autocomplete(onCommit) {  // Değer kutusu: yazarken öneri açılır; Enter etkin öneriyi seçer; Tab kapatır.
+  const w = h('<div class="ant-select ant-select-auto-complete"><input role="combobox" type="search" placeholder="Attribute Value"></div>');
+  const i = w.firstChild; w.suggestions = [];
+  i.oninput = () => dropdown(i, w.suggestions.length ? w.suggestions : ["(öneri yok)"], v => { i.value = v; });
+  i.onkeydown = e => {
+    if (e.key === 'Enter') { const a = document.querySelector('.ant-select-dropdown .ant-select-item-option-active'); if (a) i.value = a.textContent; closeDropdowns(); }
+    if (e.key === 'Tab') closeDropdowns();
+  };
+  i.onblur = () => setTimeout(closeDropdowns, 0);
+  return w;
+}
+const fmt = d => `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+function num(seed) { let x = 0; for (const c of seed) x = (x * 31 + c.charCodeAt(0)) >>> 0; return x % 90000 + 1000; }
+const dots = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+function eventInsight() {
+  const s = $('#screen'); s.innerHTML = '';
+  const state = {event: null, filters: [], metrics: ['Total Event Count'], audience:'all_users', audienceName:''};
+  const start = h('<input placeholder="Start date">'), end = h('<input placeholder="End date">');
+  const preset = (label, days) => { const b = h(`<button>${label}</button>`); b.onclick = () => { start.value = end.value = fmt(new Date(Date.now() - days * 864e5)); }; return b; };
+  s.append(h('<button>Custom</button>'), preset('Yesterday', 1), preset('Today', 0), start, end);
+  for (const box of [start, end]) box.onkeydown = e => { if (e.key === 'Enter') box.blur(); };
+  const eventSelect = select(() => EVENTS, v => state.event = v);
+  s.append(eventSelect);
+  // Prod (2026-10-19 teşhisi): düğmede simge var; erişilebilir ad "plus Add Event Property" olur.
+  const add = h('<button><span role="img" aria-label="plus" class="anticon anticon-plus"></span><span>Add Event Property</span></button>');
+  add.onclick = () => {
+    const f = {property: null, operator: null, values: []};
+    const dlg = h('<div role="dialog" class="ant-modal nm-modal"><div class="ant-modal-content"><div class="ant-modal-body"></div><div class="ant-modal-footer"><button>Cancel</button><button class="ant-btn-primary">Add</button></div></div></div>');
+    const body = dlg.querySelector('.ant-modal-body'), valueArea = h('<div class="values"></div>');
+    const renderValue = () => {
+      valueArea.innerHTML = '';
+      if (!f.operator || ['Exists', 'Not Exists'].includes(f.operator)) return;
+      const ac = autocomplete(); ac.suggestions = VALUES[f.property] || [];
+      valueArea.append(ac);
+      if (f.operator === 'In') {
+        const inline = h('<button>Add</button>');
+        inline.onclick = () => { const v = ac.firstChild.value.trim(); if (v) { f.values.push(v); ac.firstChild.value = ''; valueArea.append(h(`<span class="chip">${v}</span>`)); } };
+        valueArea.append(inline);
+      }
+    };
+    body.append(h('<div>Add an event property for event</div>'),
+      select(() => PROPS[state.event] || [], v => { f.property = v; renderValue(); }),
+      select(() => OPS, v => { f.operator = v; renderValue(); }), valueArea);
+    const [cancel, ok] = dlg.querySelectorAll('.ant-modal-footer button');
+    cancel.onclick = () => dlg.remove();
+    ok.onclick = () => {
+      if (f.operator !== 'In' && !['Exists', 'Not Exists'].includes(f.operator)) { const v = valueArea.querySelector('input'); if (v && v.value) f.values = [v.value]; }
+      state.filters.push(f); dlg.remove();
+    };
+    document.body.append(dlg);
+  };
+  const target = h('<div class="ant-card-body"><div class="targetTypeRow_mock"></div><div class="target-value"></div></div>');
+  const targetButtons = ['All Users','Segment','Tag','Profile'].map(name => {
+    const b = h(`<button class="ant-btn ${name === 'All Users' ? 'ant-btn-primary' : ''}">${name}</button>`);
+    b.onclick = () => {
+      targetButtons.forEach(x=>x.classList.toggle('ant-btn-primary',x===b));
+      state.audience = name === 'Tag' ? 'tag' : 'all_users'; state.audienceName = '';
+      const area=target.querySelector('.target-value'); area.innerHTML='';
+      // Prod (2026-10-20): seçenekler adın yanında kişi sayısıyla görünür, ör. "over_3.8.1_19EKIM(123242)".
+      if(name==='Tag') { const picker=select(()=>['over_Sentetik Tag(99)','Sentetik Tag(12.345)','Sentetik Tag_eski(5)','Sentetik Etiket İki(7)','Çift Etiket(3)','Çift Etiket(5)'],v=>state.audienceName=v.replace(/\s*\(\s*\d[\d.,\s]*\)\s*$/,''));
+        picker.append(h('<span class="ant-select-selection-placeholder">Select tag</span>')); area.append(picker); }
+    }; return b;
+  });
+  target.querySelector('.targetTypeRow_mock').append(...targetButtons);
+  // Prod: event seçimi ve hedef kitle aynı kart gövdesinde; Tag kutusu Tag'e basınca belirir.
+  target.prepend(eventSelect); s.append(add,target);
+  const metricButtons = ['Total Event Count', 'Unique User Count'].map(m => {
+    const b = h(`<button class="ant-btn ${state.metrics.includes(m) ? 'ant-btn-primary' : ''}">${m}</button>`);
+    b.onclick = () => {  // aç/kapat; hepsi kapanamaz
+      const on = state.metrics.includes(m);
+      if (on && state.metrics.length === 1) return;
+      state.metrics = on ? state.metrics.filter(x => x !== m) : [...state.metrics, m];
+      metricButtons.forEach(x => x.classList.toggle('ant-btn-primary', state.metrics.includes(x.textContent)));
+    }; return b; });
+  s.append(...metricButtons);
+  const find = h('<button><span>🔍</span> Find</button>');
+  const table = h('<table></table>');
+  const details = h('<div class="details"></div>');
+  // Prod (kullanıcı kaydı 2026-10-19): Dimensions bölümü, Find sonrası ana tablodaki event satırının
+  // seçim radyosuna basınca açılır. Bölümde metrik radyoları ve kırılım düğmeleri vardır; varsayılan
+  // kırılım yoktur (teşhis 2026-10-20): tek satırlık özet. "Days of a Month" seçilince ilk sütun ayın günü,
+  // her gün ayrı satır, sayfa başına 10 satır.
+  const parseDay = v => { const [d,m,y] = v.split('/').map(Number); return new Date(y, m-1, d); };
+  const filterText = () => state.filters.map(f => `${f.property} ${f.operator.toLowerCase()} ${f.values.join(', ')}`.trim()).join(' and ');
+  const dayCells = (metric, day) => {
+    const offset=(state.audience==='tag'?13:0)+(state.filters.length?7:0);
+    if (metric === 'SESSION') { const s = 321 + offset + day.getDate(); return [s, s-21, s-201, s-141, 21, 0, 0]; }
+    const label = metric === 'TOTAL' ? 'Total Event Count' : 'Unique User Count';
+    const t = num([state.event, label, fmt(day), fmt(day), filterText(), state.audience, state.audienceName].join('|'));
+    return [t, Math.floor(t * .9), Math.floor(t * .4), Math.floor(t * .5), t - Math.floor(t * .9), 0, 0];
+  };
+  const renderDetails = () => {
+    details.innerHTML = '';
+    const section = h('<div class="breakdownSection_mock"><h4></h4><div class="ant-card-body"><div class="ant-radio-group nm-radio-group"></div><div class="ant-flex breakdowns"></div><table></table><div class="nm-pagination"></div></div></div>');
+    // Prod başlığının tarih yazımı bilinmiyor; uygulama yalnız event adına bakmalı.
+    section.querySelector('h4').textContent = `${state.event} – Event Analytics by Dimensions (${start.value} → ${end.value})`;
+    const summary = section.querySelector('table'), pager = section.querySelector('.nm-pagination');
+    let metric = 'TOTAL', breakdown = null;
+    const days = []; for (let d = parseDay(start.value); d <= parseDay(end.value); d = new Date(d.getTime() + 864e5)) days.push(d);
+    const draw = () => {
+      let rows;
+      const total = COLS.map((_, i) => days.reduce((a, d) => a + dayCells(metric, d)[i], 0));
+      if (!breakdown) {  // kırılımsız özet: tek satır, ilk sütun yok
+        summary.innerHTML = `<thead><tr>${COLS.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody><tr class="ant-table-measure-row" aria-hidden="true">${'<td></td>'.repeat(7)}</tr><tr>${total.map(c=>`<td>${dots(c)}</td>`).join('')}</tr></tbody>`;
+        pager.innerHTML = '<span class="nm-pagination-total-item">1</span>'; return;
+      }
+      if (breakdown === 'Days of a Month') rows = days.map(d => [String(d.getDate()), ...dayCells(metric, d)]);
+      else rows = [[breakdown === 'Month' ? 'October' : 'Diğer', ...total]];
+      const shown = rows.slice(0, 10);
+      summary.innerHTML = `<thead><tr><th>${breakdown}</th>${COLS.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody><tr class="ant-table-measure-row" aria-hidden="true">${'<td></td>'.repeat(8)}</tr>${shown.map(r=>`<tr>${r.map((c,i)=>`<td>${i?dots(c):c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+      pager.innerHTML = `<span class="nm-pagination-start-item">1</span><span class="nm-pagination-end-item">${shown.length}</span><span>of</span><span class="nm-pagination-total-item">${rows.length}</span>`;
+    };
+    [['TOTAL','Total Event Count'],['UNIQUE_USER','Unique User Count'],['SESSION','By Session']].forEach(([value,label])=>{
+      const radio=h(`<label class="ant-radio-wrapper"><input class="ant-radio-input" type="radio" name="detailMetric" value="${value}" ${value==='TOTAL'?'checked':''}><span>${label}</span></label>`);
+      radio.firstChild.onchange=()=> { metric = value; if(!window.mockFreezeSession) setTimeout(draw,250); };
+      section.querySelector('.ant-radio-group').append(radio);
+    });
+    ['Month','Week','Days of a Week','Days of a Month','Hours of a Day','External ID'].forEach(name => {
+      const b = h(`<button type="button" class="ant-btn ant-btn-sm nm-btn ${name === breakdown ? 'ant-btn-primary' : 'ant-btn-default'}"><span>${name}</span></button>`);
+      b.onclick = () => { breakdown = name; section.querySelectorAll('.breakdowns button').forEach(x => { const on = x.textContent === name; x.classList.toggle('ant-btn-primary', on); x.classList.toggle('ant-btn-default', !on); }); setTimeout(draw, 250); };
+      section.querySelector('.breakdowns').append(b);
+    });
+    draw(); details.append(section);
+  };
+  const render = (rows, withFilter, metrics) => {
+    table.innerHTML = `<thead><tr><th>Select</th><th>Events</th>${withFilter ? '<th>Filter</th>' : ''}${metrics.map(m => `<th colspan="7">${m}</th>`).join('')}</tr>
+      <tr>${metrics.map(() => COLS.map(c => `<th>${c}</th>`).join('')).join('')}</tr></thead>
+      <tbody><tr class="ant-table-measure-row">${'<td></td>'.repeat(2 + (withFilter ? 1 : 0) + 7 * metrics.length)}</tr>${rows.map(r => `<tr>${r.map((c, i) => `<td>${i === 0 && c === 'RADIO' ? '<label class="ant-radio-wrapper"><span class="ant-radio"><input class="ant-radio-input" type="radio"></span></label>' : c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    const pickRow = table.querySelector('tbody input[type="radio"]');
+    if (pickRow) pickRow.onchange = () => spin(200, renderDetails);
+  };
+  render([["", "Open App", "1.111", "1", "1", "1", "1", "1", "1", "1", "1"]], false, ['Total Event Count']);
+  find.onclick = () => spin(300, () => {
+    details.innerHTML = '';
+    const text = filterText();
+    const lowercaseDukkan = state.filters.some(f => f.values.includes('demostore'));  // prod'daki gibi: büyük/küçük harf duyarlı
+    if (lowercaseDukkan) { table.querySelector('tbody').innerHTML = '<tr class="ant-table-measure-row"><td></td></tr><tr><td colspan="10">No valid record found You can change the filters</td></tr>'; return; }
+    const metrics = ['Total Event Count', 'Unique User Count'].filter(m => state.metrics.includes(m));
+    const cells = metrics.flatMap(m => { const t = num([state.event, m, start.value, end.value, text, state.audience, state.audienceName].join('|'));
+      return [dots(t), dots(Math.floor(t * .9)), dots(Math.floor(t * .4)), dots(Math.floor(t * .5)), dots(t - Math.floor(t * .9)), "0", "0"]; });
+    render([["RADIO", state.event, ...(state.filters.length ? [text] : []), ...cells]], state.filters.length > 0, metrics);
+  });
+  s.append(find, table, details);
+}
+
+function people(segment) {  // prod yapısı (2026-10-16 kullanıcı kaydı): sıralı kural/grup, üstte tek seçici + kopya etiketler, grubun kendi seçicisi
+  // segment=true: aynı kural bileşeni segment formunda; ekle düğmeleri listenin içinde, silme düğmesi çöp kutusu simgeli.
+  const s = $('#screen'); if (!segment) s.innerHTML = '';
+  if (!segment) s.append(h('<div role="tablist"><span role="tab" id="tab-filter" aria-controls="panel-filter">Filter people</span></div>'));
+  const root = segment ? h('<div class="targeting-condition-list_seg"></div>') : h('<div role="tabpanel" id="panel-filter" aria-labelledby="tab-filter"></div>');
+  const list = h(segment ? '<div class="cond-list"></div>' : '<div class="targeting-condition-list_x"></div>');
+  const state = {items: [], connector: 'AND'};
+  const counter = h('<ul><li class="ant-list-item"><span>people match</span><span class="ant-tag">0</span></li></ul>');
+  const iconBtn = (icon, text, cls = 'ant-btn ant-btn-default') => h(`<button class="${cls}"><span role="img" aria-label="${icon}" class="anticon"></span><span>${text}</span></button>`);
+  const closePop = () => document.querySelectorAll('.ant-popover').forEach(p => p.remove());
+  const model = () => JSON.stringify({c: state.connector, i: state.items.map(it => it.type === 'group' ? {g: it.connector, r: it.rules.map(r => r.desc())} : it.desc())});
+  const connectorSel = (value, onPick) => { const c = select(() => ['AND', 'OR'], onPick); c.querySelector('.ant-select-selection-item').textContent = value;
+    const i = c.querySelector('input'); i.classList.add('cover'); i.style.cssText = 'width:0;height:0;border:0;padding:0'; const w = h('<div class="ant-flex"></div>'); w.append(h('<div class="nm-select-wrapper"></div>')); w.firstChild.append(c); return w; };
+  const label = v => h(`<div class="ant-flex"><div class="logic-label_x">${v}</div></div>`);
+  const render = () => {
+    list.innerHTML = '';
+    state.items.forEach((it, i) => {
+      if (i === 1) list.append(connectorSel(state.connector, v => { state.connector = v; render(); }));
+      else if (i > 1) list.append(label(state.connector));
+      if (it.type === 'group') {
+        it.el.innerHTML = '';
+        it.el.append(connectorSel(it.connector, v => { it.connector = v; render(); }));
+        it.rules.forEach((r, j) => { if (j) it.el.append(label(it.connector)); it.el.append(r.el); });
+        it.el.append(it.add);
+      }
+      list.append(it.el);
+    });
+    counter.querySelector('.ant-tag').textContent = dots(num(model()) % 50000 + 10);
+  };
+  const removeRule = rule => { state.items = state.items.filter(it => it.el !== rule.el); state.items.forEach(it => { if (it.rules) it.rules = it.rules.filter(r => r !== rule); }); render(); };
+  const attributeArea = rule => {
+    rule.attrs = [];
+    const area = h('<div class="ant-flex ant-flex-vertical attr-area"></div>'), add = h('<button class="ant-btn ant-btn-dashed"><span>+ attribute filter</span></button>');
+    const nameMenu = onPick => {
+      closePop();
+      const pop = h(`<div class="${window.mockAttributeDropdown ? 'ant-dropdown' : 'ant-popover'}"><input placeholder="Search attributes"></div>`);
+      ['item category', 'item brand'].forEach(name => {
+        const button = h(`<button class="ant-btn ant-btn-default" role="menuitem">${name}</button>`);
+        button.onclick = () => { pop.remove(); onPick(name); }; pop.append(button);
+      });
+      document.body.append(pop);
+    };
+    const makeRow = name => {
+      const a = {name, op:'Equals', values:[]};rule.attrs.push(a);
+      const row = h('<div class="ant-space ant-space-horizontal"></div>');
+      row.mockValues=()=>[...a.values];
+      const summary=()=>{
+        const wrapper=row.closest('[class*="condition-wrapper"]');if(!wrapper)return;
+        let text=wrapper.querySelector('[class*="condition-text"]');
+        if(!text){text=h('<span class="ant-typography nm-typography condition-text_Q4"></span>');wrapper.append(text);}
+        const main=[...wrapper.querySelectorAll('button')].filter(b=>!b.closest('.ant-space-horizontal')).map(b=>b.textContent.trim());
+        const event=main.find(t=>['Sentetik Davranış','purchase','add to cart'].includes(t))||'Sentetik Davranış';
+        const rows=[...wrapper.querySelectorAll('.ant-space-horizontal')].filter(r=>r.querySelector('input[placeholder="Enter value..."]'));
+        const inner=rows.map(r=>{const buttons=r.querySelectorAll('button');const vals=r.mockValues?r.mockValues():[...r.querySelectorAll('input[placeholder="Enter value..."]')].map(i=>i.value).filter(Boolean);return `${buttons[0].textContent} ${buttons[1].textContent} ${vals.join(', ')}`;}).join(' and ');
+        text.textContent=`Behavior ${main.includes('Did not')?'Did not':'Did'} ${event} greater than 0 times between 01/10/2026 and 01/10/2026 (${inner})`;
+      };
+      const draw = () => {
+        row.innerHTML = '';
+        const chooseName = h(`<button class="ant-btn ant-btn-default">${a.name || 'Select attribute'}</button>`);
+        chooseName.onclick = () => nameMenu(selected => { a.name = selected; a.values = []; draw(); });
+        const op = h(`<button class="ant-btn ant-btn-default">${a.op}</button>`);
+        op.onclick = () => {
+          closePop();const menu = h('<div class="ant-popover"><input placeholder="Search operators"></div>');
+          ['Equals','Not Equal','In'].forEach(value => {
+            const button = h(`<button class="ant-btn">${value}</button>`);
+            button.onclick = () => { a.op = value; a.values = []; menu.remove();draw(); };menu.append(button);
+          });document.body.append(menu);
+        };
+        row.append(chooseName, op);
+        const inputs = h('<div class="ant-space ant-space-vertical"></div>'), tags=h('<div></div>'), input=h('<input placeholder="Enter value...">');
+        input.oninput=()=>{if(a.op!=='In')a.values=[input.value];};inputs.append(tags,input);row.append(inputs);
+        if(a.op==='In') {
+          const more=h('<button class="ant-btn"><span>+ Add Value</span></button>');
+          more.onclick=()=>{
+            const current=[...inputs.querySelectorAll('input')].at(-1);
+            if(!current.value.trim() || a.values.length+1===window.mockValueNoCommitAt)return;
+            const value=current.value.trim();
+            setTimeout(()=>{
+              a.values.push(value);
+              if(window.mockAttributeInputs) {
+                current.readOnly=true;inputs.append(h('<input placeholder="Enter value...">'));
+              } else if(window.mockSummaryOnly) {
+                current.value='';
+                if(a.values.length>1)tags.append(h('<span class="ant-tag nm-tag nm-tag-small nm-tag-primary nm-tag-soft">or</span>'));
+                if(a.values.length!==window.mockFreezeSummaryAt)summary();
+              } else {
+                const tag=h('<span class="ant-tag"></span>');tag.textContent=value;tags.append(tag);current.value='';
+              }
+              localStorage.setItem('mockValuesAdded',+(localStorage.getItem('mockValuesAdded')||0)+1);
+            },window.mockValueDelayMs||0);
+          };row.append(more);
+        }
+        const remove=h('<button class="ant-btn"><span class="anticon anticon-close"></span></button>');
+        remove.onclick=()=>{rule.attrs=rule.attrs.filter(x=>x!==a);row.remove();};row.append(remove);
+      };
+      draw();area.append(row);
+    };
+    add.onclick = () => {
+      closePop();
+      if(window.mockAttributeNoResponse) return;
+      if(window.mockAttributeInline) makeRow(window.mockAttributeDefaultName || '');
+      else nameMenu(makeRow);
+    };
+    const wrap=h('<div></div>');wrap.append(area,add);return wrap;
+  };
+  function addRule(into) {
+    closePop();
+    const pop = h('<div class="ant-popover"><input placeholder="Search in Channel Permission"></div>');
+    const fields = {'App Installation': ['download', ['Installed', 'Not Installed']], 'App Version': ['mobile', null], 'Platform': ['laptop', ['iOS', 'Android', 'Web']],
+                    'Behavior': ['calendar', ['Sentetik Davranış']]};
+    Object.entries(fields).forEach(([name, [icon, values]]) => {
+      const b = iconBtn(icon, name); pop.append(b);
+      b.onclick = () => {
+        pop.innerHTML = '';
+        const opts = h('<div></div>');
+        const make = v => { const x = h(`<button class="ant-btn ant-btn-default">${v}</button>`);
+          x.onclick = () => {
+            const rule = {value: v, op: 'Equals', choices: [], numbers: [1, 7], dates: ['', ''], desc: () => `${name}|${rule.op}|${v}|${rule.choices.join('|')}|${rule.numbers.join('|')}|${rule.dates.join('|')}`};
+            rule.el = h(`<div class="condition-wrapper_x"><div><div><span class="condition-type_x">${name}</span></div></div></div>`);
+            const row = rule.el.firstChild.firstChild;
+            if (name === 'App Version') {
+              const op = h('<button class="ant-btn ant-btn-default">Equals</button>');
+              op.onclick = () => { closePop(); const m = h('<div class="ant-popover"><input placeholder="Search operators"></div>');
+                ['Equals', 'Not Equal', 'Greater Than', 'Less Than', 'Between'].forEach(o => { const y = h(`<button class="ant-btn ant-btn-default">${o}</button>`); y.onclick = () => { rule.op = o; op.textContent = o; m.remove(); render(); }; m.append(y); });
+                document.body.append(m); };
+              row.append(op);
+            }
+            row.append(h(`<div class="value-row_x"><button class="ant-btn ant-btn-default">${v}</button></div>`));
+            if (name === 'Behavior') {
+              rule.choices = ['Did', 'more than', 'between dates', 'Day'];
+              const number = index => { const input = h(`<input role="spinbutton" value="${rule.numbers[index]}">`);
+                input.oninput = () => { rule.numbers[index] = Number(input.value); }; return input; };
+              const stepButton = (index, choices, placeholder) => {
+                const button = h(`<button class="ant-btn ant-btn-default">${rule.choices[index]}</button>`);
+                button.onclick = () => {
+                  closePop(); const menu = h(`<div class="ant-popover"><input placeholder="${placeholder}"></div>`);
+                  const options = h('<div></div>');
+                  const renderOptions = query => { options.innerHTML = '';
+                    choices.filter(value => value.includes(query)).forEach(value => {
+                      const option = h(`<button class="ant-btn ant-btn-default">${value}</button>`);
+                      option.onclick = () => { rule.choices[index] = value; button.textContent = value; if (index === 2) renderTime(); menu.remove(); render(); };
+                      options.append(option);
+                    }); };
+                  menu.firstChild.oninput = () => renderOptions(menu.firstChild.value);
+                  renderOptions(''); menu.append(options); document.body.append(menu);
+                }; return button;
+              };
+              const timeFields = h('<span class="time-fields"></span>');
+              const renderTime = () => {
+                timeFields.innerHTML = '';
+                if (rule.choices[2] === 'between dates') {
+                  rule.dates.forEach((value, i) => {
+                    const input = h(`<input placeholder="DD/MM/YYYY" value="${value}">`);
+                    input.oninput = () => { rule.dates[i] = input.value; };
+                    timeFields.append(input);
+                  });
+                } else timeFields.append(number(1), stepButton(3, ['Day', 'Week', 'Month'], 'Search units...'));
+              };
+              row.append(stepButton(0, ['Did', 'Did not'], 'Search conditions...'),
+                         stepButton(1, ['more than', 'exactly', 'less than'], 'Search operators...'), number(0),
+                         stepButton(2, ['in the last', 'between dates'], 'Search date units...'), timeFields);
+              renderTime();
+              if (segment) row.append(attributeArea(rule));
+            }
+            const del = h(segment ? '<button class="ant-btn ant-btn-ghost nm-btn nm-btn-danger"><span role="img" aria-label="delete" class="anticon anticon-delete"></span></button>'
+                                  : '<button class="ant-btn ant-btn-ghost nm-btn" aria-label="delete"></button>');
+            if (segment) del.onclick = () => removeRule(rule);
+            rule.el.append(del);
+            closePop(); into(rule); render();
+          }; return x; };
+        if (values) values.forEach(v => opts.append(make(v)));
+        else { const search = h(`<input placeholder="Search in ${name}">`); search.oninput = () => { opts.innerHTML = '';
+          ["Android 1.2.3", "iOS 1.2.3", "Android 3.1.2"].filter(v => v.toLowerCase().includes(search.value.toLowerCase())).forEach(v => opts.append(make(v))); };
+          pop.append(search); }
+        pop.append(opts);
+      };
+    });
+    document.body.append(pop);
+  }
+  const addTop = iconBtn('plus', 'Add Filter Rule'); addTop.onclick = () => addRule(rule => state.items.push({type: 'rule', el: rule.el, desc: rule.desc}));
+  const addGroup = iconBtn('plus', 'Add Filter Group');
+  addGroup.onclick = () => {
+    const g = {type: 'group', connector: 'AND', rules: [], el: h('<div class="group-container_x"></div>')};
+    g.add = iconBtn('plus', 'Add Filter Rule', 'ant-btn ant-btn-ghost nm-btn');
+    g.add.onclick = () => addRule(rule => g.rules.push(rule));
+    state.items.push(g); render();
+  };
+  const results = h('<div class="results"></div>');
+  const show = iconBtn('search', 'Show results', 'ant-btn ant-btn-primary');
+  show.onclick = () => fetch('/api/targeting/people').catch(() => null).then(() => setTimeout(() => {
+    results.innerHTML = `<table><tbody>${[1, 2, 3].map(i => `<tr><td>Sentetik Kişi ${i}</td></tr>`).join('')}</tbody></table>
+      <div class="ant-flex">20 <span>of</span> <span class="nm-pagination-total-item">${num(model())}</span></div>`;
+  }, 300));
+  const buttons = h('<div class="ant-flex"></div>'); buttons.append(addTop, addGroup);
+  if (segment) { root.append(list, buttons); s.append(root); render(); return {state, list, model, attributeArea}; }
+  root.append(list, buttons, counter, show, results);
+  s.append(root);
+  render();
+}
+
+// --- Segment listesi ve düzenleme formu (prod yapısı: kullanıcı kaydı ve yapı çıkarımı 2026-10-27) ---
+const SEG_DEFAULT = {"11": {name: "Sentetik Segment", users: 45010, status: "Active", date: "09/03/2026 03:00"},
+                     "12": {name: "Sentetik Segment Eski", users: 12, status: "Active", date: "01/01/2026"},
+                     "941": {name: "demo-segment-2", users: 3593, status: "Ready", date: "27/10/2026",
+                             dates: [["20/10/2026", "27/10/2026"], ["20/10/2026", "27/10/2026"]]}};
+const segs = () => Object.assign({}, SEG_DEFAULT, JSON.parse(localStorage.getItem('mockSegs') || '{}'));
+const saveSeg = (id, seg) => { const all = JSON.parse(localStorage.getItem('mockSegs') || '{}'); all[id] = seg; localStorage.setItem('mockSegs', JSON.stringify(all)); };
+function segmentForm(id) {
+  const s = $('#screen'); s.innerHTML = '';
+  const seg = id ? segs()[id] : {name: '', dates: []};
+  const name = h(`<input id="segmentName" placeholder="Enter a segment name" value="${seg ? seg.name : ''}">`);
+  s.append(name);
+  const editor = people(true);
+  const staticRule = (type, event, dates, extra) => h(`<div class="condition-wrapper_HA"><div><div class="ant-flex"><span class="condition-type_jD">Behavior</span>
+    <div class="value-row_yM"><button class="ant-btn">${type}</button><button class="ant-btn">${event}</button>${extra}<button class="ant-btn">between dates</button>
+    <div class="ant-space"><div class="ant-picker"><div class="ant-picker-input"><input placeholder="DD/MM/YYYY" value="${dates[0]}"></div></div> and <div class="ant-picker"><div class="ant-picker-input"><input placeholder="DD/MM/YYYY" value="${dates[1]}"></div></div></div></div>
+    <button class="ant-btn ant-btn-dashed"><span>+ attribute filter</span></button></div></div>
+    <button class="ant-btn ant-btn-ghost nm-btn nm-btn-danger"><span role="img" aria-label="delete" class="anticon anticon-delete"></span></button></div>`);
+  if (seg && seg.dates && seg.dates.length) {  // kayıtlı segmentin mevcut iki kuralı (Did / Did not, between dates)
+    const first = staticRule('Did', 'add to cart', seg.dates[0], '<button class="ant-btn">more than</button><input role="spinbutton" value="0">');
+    first.querySelector('.ant-btn-dashed').before(h('<div class="ant-space ant-space-horizontal"><button class="ant-btn">item category</button><button class="ant-btn">Equals</button><input placeholder="Enter value..." value="DemoStore"><button class="ant-btn nm-btn-danger"><span class="anticon anticon-close"></span></button></div>'));
+    const second = staticRule('Did not', 'purchase', seg.dates[1], '');
+    second.querySelector('.ant-btn-dashed').before(h('<div class="ant-space ant-space-horizontal"><button class="ant-btn">item category</button><button class="ant-btn">In</button><div class="ant-space ant-space-vertical"><input placeholder="Enter value..." value=""><button class="ant-btn"><span>+ Add Value</span></button></div></div>'));
+    if(window.mockSiblingAttribute) second.querySelector('.ant-btn-dashed').before(h('<div class="ant-space ant-space-horizontal"><button class="ant-btn">item brand</button><button class="ant-btn">Equals</button><input placeholder="Enter value..." value="synthetic-static"></div>'));
+    const join = h('<div class="ant-flex"><div class="nm-select-wrapper"><div class="ant-select"><span class="ant-select-selection-item">AND</span></div></div></div>');
+    [first, second].forEach(el => el.querySelector('.anticon-delete').parentNode.onclick = () => { el.remove(); join.remove(); });
+    editor.list.append(first, join, second);
+    [first, second].forEach(wrapper => {
+      const original = wrapper.querySelector('.ant-space-horizontal');
+      if (!original.querySelector('.anticon-close')) original.append(h('<button class="ant-btn"><span class="anticon anticon-close"></span></button>'));
+      original.querySelector('.anticon-close').parentNode.onclick = () => {
+        localStorage.setItem('mockAttrCleared', +(localStorage.getItem('mockAttrCleared') || 0) + 1);
+        const clear=()=>{
+          const boxes=[...original.querySelectorAll('input[placeholder="Enter value..."]')];
+          boxes.slice(1).forEach(input=>input.remove());boxes[0].value='';
+          original.querySelectorAll('.ant-tag').forEach(tag=>tag.remove());
+        };
+        if(window.mockAttributeRemoveRow) {
+          original.remove();
+          if(window.mockAttributeRemoveOther) first.querySelector('input[placeholder="Enter value..."]').value='';
+          if(window.mockAttributeRemoveRule) wrapper.remove();
+          return;
+        }
+        if(window.mockAttributeRemount) {
+          const parent=original.parentNode,next=original.nextSibling;original.remove();
+          setTimeout(()=>{clear();parent.insertBefore(original,next);},200);return;
+        }
+        clear();
+      };
+      const more=[...original.querySelectorAll('button')].find(button=>button.textContent.trim()==='+ Add Value');
+      if(more) more.onclick=()=>{
+        const input=original.querySelector('input[placeholder="Enter value..."]');if(!input.value.trim())return;
+        const tag=h('<span class="ant-tag"></span>');tag.textContent=input.value.trim();input.parentNode.insertBefore(tag,input);input.value='';
+        localStorage.setItem('mockValuesAdded',+(localStorage.getItem('mockValuesAdded')||0)+1);
+      };
+      wrapper.querySelector('.ant-btn-dashed').replaceWith(editor.attributeArea({}));
+    });
+  }
+  const parse = v => { const m = /^(\d\d)\/(\d\d)\/(\d{4})$/.exec(v); return m ? `${m[3]}-${m[2]}-${m[1]}` : null; };
+  editor.list.querySelectorAll('.ant-space').forEach(space => {
+    const boxes = space.querySelectorAll('input[placeholder="DD/MM/YYYY"]'); if (boxes.length !== 2) return;
+    boxes.forEach((box, i) => { let last = box.value; box.addEventListener('change', () => {
+      const [a, b] = [...boxes].map(x => parse(x.value));
+      if (a && b && a > b) { box.value = last; window.mockRejected = (window.mockRejected || 0) + 1; } else last = box.value; }); });
+  });
+  const cancel = h('<button class="ant-btn">Cancel</button>'), save = h('<button class="ant-btn ant-btn-primary" data-testid="save-segment">Save</button>');
+  save.onclick = () => {
+    const dates = [...document.querySelectorAll('[class*="targeting-condition-list"] input[placeholder="DD/MM/YYYY"]')].map(i => i.value);
+    const pairs = []; for (let i = 0; i < dates.length; i += 2) pairs.push([dates[i], dates[i + 1]]);
+    const key = id || '990', old = segs()[key];
+    saveSeg(key, {name: name.value, users: old ? old.users : 0, status: 'Calculating', date: '27/10/2026', dates: pairs,
+                  until: Date.now() + (window.mockCalcMs ?? 2500), model: editor.model(),
+                  attributes: [...editor.list.querySelectorAll('[class*="condition-wrapper"]')].map(w => [...w.querySelectorAll('.ant-space-horizontal')].filter(r => r.querySelector('input[placeholder="Enter value..."]')).map(r => ({name:r.querySelectorAll('button')[0].textContent, operator:r.querySelectorAll('button')[1].textContent, values:r.mockValues?r.mockValues():[...[...r.querySelectorAll('.ant-tag')].map(t=>t.textContent),...[...r.querySelectorAll('input[placeholder="Enter value..."]')].map(i=>i.value)].filter(Boolean)}))),
+                  next: window.mockSameCount && old ? old.users : num(name.value + dates.join('|') + editor.model())});
+    location.href = '/targeting/segment/list';
+  };
+  s.append(cancel, save);
+}
+
+function listScreen(kind) {
+  const s = $('#screen'); s.innerHTML = '';
+  const tags = kind === 'tags';
+  const headers = tags ? ["Name", "Short Code", "Type", "Status", "Tag Status", "User Count", "Create Date", "Update Date", "Actions"]
+                       : ["", "ID", "Name", "Users", "Message Sent", "Type", "Status", "Update Date", "Actions"];
+  const all = tags ? {} : segs();
+  for (const [id, seg] of Object.entries(all)) if (seg.status === 'Calculating' && Date.now() > seg.until) {  // hesap bitti
+    seg.status = 'Ready'; seg.users = seg.next; saveSeg(id, seg); }
+  const data = tags ? [["Sentetik Tag", "st", "User", "Active", "Active", "1.204", "01/03/2026", "01/03/2026", ""], ["Sentetik Tag 2", "st2", "User", "Active", "Active", "88", "02/03/2026", "02/03/2026", ""]]
+                    : Object.entries(all).map(([id, seg]) => ["", id, seg.name, dots(seg.users), "0", "Standard", seg.status, seg.date, ""]);
+  const search = h(`<input placeholder="${tags ? 'Search' : 'Search by name'}">`);
+  const table = h('<table></table>');
+  const expand = '<button type="button" class="nm-table-expand-icon" aria-label="Show details" title="Show details"></button>';
+  const render = q => { table.innerHTML = `<thead><tr>${headers.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>${data.filter(r => r.some(c => c.includes(q))).map(r => `<tr class="ant-table-row" ${tags ? '' : `data-row-key="${r[1]}"`}>${r.map((c, i) => `<td>${!tags && i === 0 ? expand : c}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    // Prod (kullanıcı kaydı 2026-10-27): ayrıntıda her kuralın okunur özeti, attribute değerleri parantez içinde.
+    table.querySelectorAll('[aria-label="Show details"]').forEach(b => b.onclick = () => spin(150, () => {
+      const seg = all[b.closest('tr').dataset.rowKey], d = (seg.dates || [])[1] || ['', ''];
+      b.closest('tr').after(h(`<tr class="ant-table-expanded-row"><td colspan="9"><span class="ant-typography condition-text_Q4">Behavior Did add to cart more than 0 between ${(seg.dates || [])[0]?.[0]} and ${(seg.dates || [])[0]?.[1]} (item category equals DemoStore)</span><span class="ant-typography condition-text_Q4">Behavior Did not purchase between ${d[0]} and ${d[1]} (item category in DemoStore, DemoCategory)</span></td></tr>`));
+    })); };
+  search.onkeydown = e => { if (e.key === 'Enter') spin(200, () => render(search.value)); };
+  render(''); s.append(search, table);
+  if (!tags) { const create = h('<button class="ant-btn ant-btn-primary">Create Segment</button>'); create.onclick = () => { location.href = '/targeting/segment/save'; }; s.prepend(create); }
+}
+
+const ROUTES = {"/analytics/event-insight": eventInsight, "/targeting/people": people,
+                "/targeting/tags/list": () => listScreen('tags'), "/targeting/segment/list": () => listScreen('segments')};
+const saveMatch = location.pathname.match(/^\/targeting\/segment\/save(?:\/(\d+))?$/);
+if (saveMatch) segmentForm(saveMatch[1]); else (ROUTES[location.pathname] || (() => {}))();
+</script>
+</body></html>

@@ -1,0 +1,647 @@
+{
+  "kaynak": "Örnek alan şeması; gerçek panelde desteklenen alanlar farklı olabilir.",
+  "not": "Kişisel filtre veya event kataloğu içermez.",
+  "alanlar": {
+    "Channel Permission": {
+      "degerler": [
+        "Mobile",
+        "Web",
+        "SMS",
+        "Email",
+        "WhatsApp"
+      ],
+      "deger_sayisi": 0,
+      "giris_yer_tutucu": [
+        "Search in Channel Permission"
+      ],
+      "not": "Değerler kanal adlarıdır (Mobile/Web/SMS/Email/WhatsApp); Mobile'a basınca 'Channel Permission · Equals · Mobile' kuralı oluştu."
+    },
+    "Behavior": {
+      "degerler": null,
+      "deger_sayisi": 203,
+      "giris_yer_tutucu": [
+        "Search in Behavior"
+      ],
+      "satir_etiketleri": [
+        "Behavior",
+        "Did",
+        "Did",
+        "<değer>",
+        "<değer>",
+        "more than",
+        "more than",
+        "in the last",
+        "in the last",
+        "Day",
+        "Day",
+        "+ attribute filter",
+        "+ attribute filter",
+        "Apply time restriction",
+        "Apply location restriction"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Did",
+            "Did not"
+          ],
+          "secenek_sayisi": 2
+        },
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "more than",
+            "exactly",
+            "less than"
+          ],
+          "secenek_sayisi": 3
+        },
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "in the last",
+            "between dates"
+          ],
+          "secenek_sayisi": 2
+        },
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Day",
+            "Week",
+            "Month"
+          ],
+          "secenek_sayisi": 3
+        }
+      ]
+    },
+    "Profile Attribute": {
+      "degerler": null,
+      "deger_sayisi": 95,
+      "giris_yer_tutucu": [
+        "Search in Profile Attribute"
+      ],
+      "satir_etiketleri": [
+        "Profile Attribute",
+        "<değer>",
+        "<değer>",
+        "Equals",
+        "Equals"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal",
+            "Contains",
+            "In",
+            "Not Exists",
+            "Exists"
+          ],
+          "secenek_sayisi": 6
+        }
+      ]
+    },
+    "Segment": {
+      "degerler": null,
+      "deger_sayisi": 172,
+      "giris_yer_tutucu": [
+        "Search in Segment"
+      ],
+      "satir_etiketleri": [
+        "Segment",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Tag": {
+      "degerler": null,
+      "deger_sayisi": 1065,
+      "giris_yer_tutucu": [
+        "Search in Tag"
+      ],
+      "satir_etiketleri": [
+        "Tag",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Platform": {
+      "degerler": [
+        "iOS",
+        "Android",
+        "Chrome",
+        "Safari",
+        "Firefox",
+        "Opera",
+        "Edge",
+        "Yandex"
+      ],
+      "deger_sayisi": 8,
+      "giris_yer_tutucu": [
+        "Search in Platform"
+      ],
+      "satir_etiketleri": [
+        "Platform",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Platform Permission": {
+      "degerler": [
+        "iOS",
+        "Android",
+        "Chrome",
+        "Safari",
+        "Firefox",
+        "Opera",
+        "Edge",
+        "Yandex"
+      ],
+      "deger_sayisi": 8,
+      "giris_yer_tutucu": [
+        "Search in Platform Permission"
+      ],
+      "satir_etiketleri": [
+        "Platform Permission",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Response": {
+      "degerler": null,
+      "deger_sayisi": 106,
+      "giris_yer_tutucu": [
+        "Search in Response"
+      ],
+      "satir_etiketleri": [
+        "Response",
+        "<değer>",
+        "<değer>",
+        "Received",
+        "Received",
+        "Select date option",
+        "Select date option"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Received",
+            "Not Received",
+            "Clicked",
+            "Not Clicked",
+            "Read Inbox",
+            "Not Read Inbox"
+          ],
+          "secenek_sayisi": 6
+        },
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "In the last",
+            "Date Between"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Message Category": {
+      "degerler": null,
+      "deger_sayisi": 1,
+      "giris_yer_tutucu": [
+        "Search in Message Category"
+      ],
+      "satir_etiketleri": [
+        "Message Category",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>",
+        "All channels",
+        "All channels"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Device Type": {
+      "degerler": [
+        "Tablet",
+        "Desktop"
+      ],
+      "deger_sayisi": 2,
+      "giris_yer_tutucu": [
+        "Search in Device Type"
+      ],
+      "satir_etiketleri": [
+        "Device Type",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Device Model": {
+      "degerler": null,
+      "deger_sayisi": 1010,
+      "giris_yer_tutucu": [
+        "Search in Device Model"
+      ],
+      "satir_etiketleri": [
+        "Device Model",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Location": {
+      "degerler": [],
+      "deger_sayisi": 0,
+      "giris_yer_tutucu": [
+        "Search in Location"
+      ],
+      "veri": "yok",
+      "not": "Sağ sütun boş: bu hesapta değer listesi yok."
+    },
+    "Location Tracking": {
+      "degerler": [
+        "Not Determined",
+        "Restricted",
+        "Denied",
+        "Always",
+        "While Using"
+      ],
+      "deger_sayisi": 5,
+      "giris_yer_tutucu": [
+        "Search in Location Tracking"
+      ],
+      "satir_etiketleri": [
+        "Location Tracking",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "App Installation": {
+      "degerler": [
+        "Installed",
+        "Not Installed"
+      ],
+      "deger_sayisi": 2,
+      "giris_yer_tutucu": [
+        "Search in App Installation"
+      ],
+      "satir_etiketleri": [
+        "App Installation",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": []
+    },
+    "App Version": {
+      "degerler": null,
+      "deger_sayisi": 200,
+      "giris_yer_tutucu": [
+        "Search in App Version"
+      ],
+      "satir_etiketleri": [
+        "App Version",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal",
+            "Greater Than",
+            "Less Than",
+            "Between"
+          ],
+          "secenek_sayisi": 5
+        }
+      ]
+    },
+    "Operating System": {
+      "degerler": null,
+      "deger_sayisi": 308,
+      "giris_yer_tutucu": [
+        "Search in Operating System"
+      ],
+      "satir_etiketleri": [
+        "Operating System",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal",
+            "Greater Than",
+            "Less Than",
+            "Between"
+          ],
+          "secenek_sayisi": 5
+        }
+      ]
+    },
+    "Android Provider": {
+      "degerler": [
+        "Google",
+        "Huawei"
+      ],
+      "deger_sayisi": 2,
+      "giris_yer_tutucu": [
+        "Search in Android Provider"
+      ],
+      "satir_etiketleri": [
+        "Android Provider",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "Equals",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Operator": {
+      "degerler": null,
+      "deger_sayisi": 247,
+      "giris_yer_tutucu": [
+        "Search in Operator"
+      ],
+      "satir_etiketleri": [
+        "Operator",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Promotion": {
+      "degerler": null,
+      "deger_sayisi": 2,
+      "giris_yer_tutucu": [
+        "Search in Promotion"
+      ],
+      "satir_etiketleri": [
+        "Promotion",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "App Tracking (Android Only)": {
+      "degerler": null,
+      "deger_sayisi": 532,
+      "giris_yer_tutucu": [
+        "Search in App Tracking (Android Only)"
+      ],
+      "satir_etiketleri": [
+        "App Tracking (Android Only)",
+        "Equals",
+        "Equals",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": [
+        {
+          "satir_dugmesi": "<düğme>",
+          "secenekler": [
+            "Equals",
+            "Not Equal"
+          ],
+          "secenek_sayisi": 2
+        }
+      ]
+    },
+    "Installation Source": {
+      "degerler": [],
+      "deger_sayisi": 0,
+      "giris_yer_tutucu": [
+        "Search in Installation Source"
+      ],
+      "veri": "yok",
+      "not": "Sağ sütun 'No Data' gösterir."
+    },
+    "Advertising ID Permission": {
+      "degerler": [
+        "Enabled",
+        "Disabled"
+      ],
+      "deger_sayisi": 2,
+      "giris_yer_tutucu": [
+        "Search in Advertising ID Permission"
+      ],
+      "satir_etiketleri": [
+        "Advertising ID Permission",
+        "<değer>",
+        "<değer>"
+      ],
+      "satir_secimleri": []
+    },
+    "Blacklist": {
+      "degerler": [
+        "Mobile",
+        "Web",
+        "SMS",
+        "Email",
+        "WhatsApp"
+      ],
+      "deger_sayisi": 0,
+      "giris_yer_tutucu": [
+        "Search in Blacklist"
+      ],
+      "not": "Sağ sütunda kanal adları gösterir."
+    },
+    "Device Count": {
+      "degerler": [],
+      "deger_sayisi": 0,
+      "giris_yer_tutucu": [
+        "Search in Device Count"
+      ],
+      "not": "Sağ sütunda tek öğe ('Device Count') var; sayısal girdi olabilir, prod'da denenmedi."
+    },
+    "Mobile": {
+      "ust_alan": "Channel Permission",
+      "not": "Ayrı alan değil; Channel Permission'ın değeridir."
+    },
+    "Web": {
+      "ust_alan": "Channel Permission",
+      "not": "Ayrı alan değil; Channel Permission/Blacklist değeridir."
+    },
+    "SMS": {
+      "ust_alan": "Channel Permission",
+      "not": "Ayrı alan değil; Channel Permission/Blacklist değeridir."
+    },
+    "Email": {
+      "ust_alan": "Channel Permission",
+      "not": "Ayrı alan değil; Channel Permission/Blacklist değeridir."
+    },
+    "WhatsApp": {
+      "ust_alan": "Channel Permission",
+      "not": "Ayrı alan değil; Channel Permission/Blacklist değeridir."
+    }
+  },
+  "alan_listesi": [
+    "Channel Permission",
+    "Behavior",
+    "Profile Attribute",
+    "Segment",
+    "Tag",
+    "Platform",
+    "Platform Permission",
+    "Response",
+    "Message Category",
+    "Device Type",
+    "Device Model",
+    "Location",
+    "Location Tracking",
+    "App Installation",
+    "App Version",
+    "Operating System",
+    "Android Provider",
+    "Operator",
+    "Promotion",
+    "App Tracking (Android Only)",
+    "Installation Source",
+    "Advertising ID Permission",
+    "Blacklist",
+    "Device Count",
+    "Mobile",
+    "Web",
+    "SMS",
+    "Email",
+    "WhatsApp"
+  ],
+  "dogrulandi": [
+    "App Version",
+    "App Installation"
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "aciklama": "Tamamen sentetik başlangıç işleri. Kendi işlerinizi arayüzden tanımlayın.",
+  "bilinen_eventler": [
+    "Install(First Open) App",
+    "Open App",
+    "View Content",
+    "view item",
+    "view item list"
+  ],
+  "bilinen_propertyler": [
+    "Content Id",
+    "item category",
+    "Vertical"
+  ],
+  "jobs": [
+    {
+      "label": "Total User",
+      "type": "people",
+      "enabled": true,
+      "connector": "OR",
+      "count_from": "results_total",
+      "items": [
+        {
+          "kind": "rule",
+          "field": "App Version",
+          "value": "Android 1.2.3",
+          "operator": "Greater Than"
+        },
+        {
+          "kind": "rule",
+          "field": "App Version",
+          "value": "iOS 1.2.3",
+          "operator": "Greater Than"
+        },
+        {
+          "kind": "group",
+          "connector": "AND",
+          "rules": [
+            {
+              "field": "App Installation",
+              "value": "Installed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Install First Open - Unique User",
+      "type": "event",
+      "enabled": true,
+      "event": "Install(First Open) App",
+      "filters": [],
+      "metric": "unique_user_count",
+      "period": {
+        "type": "yesterday"
+      },
+      "columns": [
+        "All Total"
+      ]
+    },
+    {
+      "label": "View Content - DemoCampaign - Total",
+      "type": "event",
+      "enabled": true,
+      "event": "View Content",
+      "filters": [
+        {
+          "property": "Content Id",
+          "operator": "Contains",
+          "values": [
+            "DemoCampaign"
+          ]
+        }
+      ],
+      "metric": "total_event_count",
+      "period": {
+        "type": "yesterday"
+      },
+      "columns": [
+        "All Total"
+      ]
+    },
+    {
+      "label": "View Item - DemoStore - Total",
+      "type": "event",
+      "enabled": true,
+      "event": "view item",
+      "filters": [
+        {
+          "property": "item category",
+          "operator": "Equals",
+          "values": [
+            "demostore"
+          ]
+        }
+      ],
+      "metric": "total_event_count",
+      "period": {
+        "type": "yesterday"
+      },
+      "columns": [
+        "All Total"
+      ]
+    },
+    {
+      "label": "View Item List - DemoCategory / DemoStore - Total",
+      "type": "event",
+      "enabled": true,
+      "event": "view item list",
+      "filters": [
+        {
+          "property": "Vertical",
+          "operator": "In",
+          "values": [
+            "DemoCategory",
+            "DemoStore"
+          ]
+        }
+      ],
+      "metric": "total_event_count",
+      "period": {
+        "type": "yesterday"
+      },
+      "columns": [
+        "All Total"
+      ]
+    },
+    {
+      "label": "Open App - Unique User",
+      "type": "event",
+      "enabled": true,
+      "event": "Open App",
+      "filters": [],
+      "metric": "unique_user_count",
+      "period": {
+        "type": "yesterday"
+      },
+      "columns": [
+        "All Total"
+      ]
+    }
+  ]
+}
